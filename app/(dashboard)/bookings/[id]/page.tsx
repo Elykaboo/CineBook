@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { cancelBooking } from "@/actions/bookings";
 
 export default async function BookingDetailPage({
   params,
@@ -20,6 +22,9 @@ export default async function BookingDetailPage({
   });
 
   if (!booking || booking.userId !== session.user.id) notFound();
+
+  const isCancellable =
+    booking.status !== "CANCELLED" && booking.showtime.startTime > new Date();
 
   return (
     <div className="flex flex-col gap-4 p-8 max-w-lg">
@@ -47,7 +52,20 @@ export default async function BookingDetailPage({
         <p className="font-medium">
           Total: ₱{booking.totalPrice.toNumber().toFixed(2)}
         </p>
+
+        {isCancellable && (
+          <form action={cancelBooking}>
+            <input type="hidden" name="bookingId" value={booking.id} />
+            <button type="submit" className="text-sm text-red-600 underline">
+              Cancel booking
+            </button>
+          </form>
+        )}
       </div>
+
+      <Link href="/bookings" className="text-sm underline">
+        Back to my bookings
+      </Link>
     </div>
   );
 }

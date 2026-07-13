@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -74,4 +75,29 @@ export async function createBooking(
   }
 
   redirect(`/bookings/${bookingId}`);
+}
+
+export async function cancelBooking(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
+  const bookingId = formData.get("bookingId");
+  if (typeof bookingId !== "string" || !bookingId) return;
+
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { showtime: true },
+  });
+
+  if (!booking || booking.userId !== session.user.id) return;
+  if (booking.status === "CANCELLED") return;
+  if (booking.showtime.startTime <= new Date()) return;
+
+  await prisma.booking.update({
+    where: { id: bookingId },
+    data: { status: "CANCELLED" },
+  });
+
+  revalidatePath("/bookings");
+  revalidatePath(`/bookings/${bookingId}`);
 }

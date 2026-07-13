@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useActionState } from "react";
 import Link from "next/link";
 import { createBooking, type BookingFormState } from "@/actions/bookings";
+import { FormError } from "@/components/form-error";
 
 type Seat = {
   id: string;
@@ -114,11 +115,7 @@ export function SeatMap({
           <span className="font-medium">₱{total.toFixed(2)}</span>
         </p>
 
-        {state?.error && (
-          <p className="text-sm text-red-600" role="alert">
-            {state.error}
-          </p>
-        )}
+        <FormError message={state?.error} />
 
         {isLoggedIn ? (
           <form action={formAction}>

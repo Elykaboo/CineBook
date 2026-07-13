@@ -62,53 +62,58 @@ Cinema Ticket Reservation System. Next.js 15 (App Router), TypeScript, PostgreSQ
 
 ## Phase 4 — User Dashboard
 
-- [ ] `/dashboard/bookings` — list of the logged-in user's bookings
-- [ ] Booking detail view (movie, showtime, seats, total, status)
-- [ ] Cancel booking action (sets status CANCELLED, frees seats)
-- [ ] Empty state for no bookings yet
+- [x] `/bookings` — list of the logged-in user's bookings
+- [x] Booking detail view (movie, showtime, seats, total, status)
+- [x] Cancel booking action (sets status CANCELLED, frees seats) — verified: cancelling flips status and the seat immediately shows available again on the showtime page
+- [x] Empty state for no bookings yet
+- [x] Cancel restricted to future, non-cancelled showtimes (button hidden otherwise)
 
 ---
 
 ## Phase 5 — Admin Dashboard
 
-- [ ] `/dashboard/admin` — overview (counts: movies, showtimes, bookings today)
-- [ ] Movie management: create/edit/delete movie (form + server actions)
-- [ ] Cinema hall management: create hall (rows/columns → auto-generate seats)
-- [ ] Showtime management: create/edit/delete showtime (movie + hall + time + price)
-- [ ] Bookings view: list all bookings across users, filter by status/date
-- [ ] Admin-only route guard (role check beyond just "logged in")
+- [x] `/admin` — overview (counts: movies, halls, showtimes, bookings today, active bookings)
+- [x] Movie management: create/edit/delete movie (form + server actions)
+- [x] Cinema hall management: create hall (rows/columns → auto-generate seats) — verified 3×5 hall generates exactly 15 seats, last row PREMIUM
+- [x] Showtime management: create/delete showtime (movie + hall + time + price) — edit intentionally omitted (delete+recreate covers it, avoids seat-map/booking conflicts an edit would need to handle)
+- [x] Bookings view: list all bookings across users, filter by status via query param
+- [x] Admin-only route guard (role check beyond just "logged in") — verified all `/admin/*` sub-routes 302 away for a non-admin session; every mutating action also re-checks role server-side (defense in depth beyond middleware)
 
 ---
 
 ## Phase 6 — Polish & Cross-Cutting Concerns
 
-- [ ] Consistent loading/skeleton states across data-fetching pages
-- [ ] Consistent error boundaries / error.tsx per route group
-- [ ] Form validation error messaging pattern (shared component)
-- [ ] Responsive layout pass (mobile seat map is the tricky one)
-- [ ] Accessibility pass (labels, focus states, keyboard nav on seat map)
-- [ ] Toast/notification system for action feedback (booking success, errors)
+Visual polish (responsive/accessibility/styling) deliberately deferred — UI is a functional placeholder pending a design pass, per user decision on 2026-07-13. Only structural/functional items done now.
+
+- [x] Consistent loading states across data-fetching pages (`loading.tsx` for movies, movie detail, showtime, bookings, booking detail, admin section)
+- [x] Consistent error boundaries — global `app/error.tsx` + `app/not-found.tsx`
+- [x] Form validation error messaging pattern (shared `FormError`/`FieldError` components, used across all 6 forms: login, register, movie, hall, showtime, seat-map booking)
+- [ ] Responsive layout pass (mobile seat map is the tricky one) — deferred to design pass
+- [ ] Accessibility pass (labels, focus states, keyboard nav on seat map) — deferred to design pass
+- [ ] Toast/notification system for action feedback — deferred to design pass (inline error text covers functional feedback for now)
 
 ---
 
 ## Phase 7 — Testing & Hardening
 
-- [ ] Manual test pass: full booking flow end-to-end
-- [ ] Manual test pass: concurrent booking of the same seat (double-booking guard)
-- [ ] Manual test pass: role-based access (USER can't reach admin routes)
-- [ ] Seed script re-run idempotency check
-- [ ] Review server actions for auth checks (every mutating action verifies session)
+- [x] Manual test pass: full booking flow end-to-end (verified live during Phase 3/4 build-out: browse → seat select → book → confirm → cancel → seat freed)
+- [x] Manual test pass: concurrent booking of the same seat (double-booking guard) — two simultaneous requests for the same seat: one succeeds, one cleanly rejected by the unique constraint, exactly one `BookingSeat` row persists
+- [x] Manual test pass: role-based access (USER can't reach admin routes) — verified every `/admin/*` sub-route 302s away for a non-admin session
+- [x] Seed script re-run idempotency check — **found and fixed a real bug**: re-running `db:seed` duplicated movies/halls (8→16, 2→4) since only users were upsert-safe; added a reset (`deleteMany` on Movie/CinemaHall, cascades handle the rest) so re-running now reliably returns to the exact same seeded state
+- [x] Review server actions for auth checks — audited all 8 mutating actions; every one checks session/role appropriately (`createBooking`/`cancelBooking` check session + ownership, all `admin.ts` mutations call `requireAdmin()`)
+- [x] Known limitation noted: pages calling `notFound()` render the correct content but return HTTP 200 instead of 404 in dev, due to Next.js App Router streaming semantics (status can't change after the shell has started streaming). Cosmetic for real users, would only affect SEO crawlers — not fixed, out of scope.
 
 ---
 
 ## Phase 8 — Deployment
 
-- [ ] Production Postgres confirmed (Neon prod branch or separate DB)
-- [ ] Environment variables set in hosting provider (DATABASE_URL, AUTH_SECRET)
-- [ ] Deploy to Vercel (or chosen host)
-- [ ] Run migrations against production DB
-- [ ] Smoke test production deployment
-- [ ] Final README with setup instructions for grading/demo
+- [ ] Production Postgres confirmed (Neon prod branch or separate DB) — currently dev and "prod" would share the same Neon DB; recommended to split before a real deploy, left as a decision for the user
+- [x] Environment variables documented (`DATABASE_URL`, `AUTH_SECRET`) — checklist in README
+- [ ] Deploy to Vercel (or chosen host) — requires user's hosting account, not something that can be done without their credentials/access
+- [x] Migration command for production documented (`prisma migrate deploy`, distinct from local `migrate dev`)
+- [ ] Smoke test production deployment — blocked on an actual deployed URL existing
+- [x] Final README with setup instructions for grading/demo — rewritten with real project docs, setup steps, seed warning, and deployment steps
+- [x] Production build verified locally (`npm run build`) — all 18 routes compile successfully, correctly all-dynamic (no bad static prerendering of session-dependent pages)
 
 ---
 
@@ -116,3 +121,4 @@ Cinema Ticket Reservation System. Next.js 15 (App Router), TypeScript, PostgreSQ
 
 - Auth (Phase 1) unlocks meaningful testing of Phases 3–5, so it's the recommended next step.
 - Booking creation (Phase 3) is the highest-risk piece technically — the seat double-booking guard needs to be verified under concurrent requests, not just happy path.
+- Actual deployment (picking a host, connecting the account, going live) needs the user directly — an agent shouldn't be creating/configuring third-party hosting accounts unsupervised.

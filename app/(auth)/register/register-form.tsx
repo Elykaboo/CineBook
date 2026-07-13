@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { registerUser, type AuthFormState } from "@/actions/auth";
+import { FormError, FieldError } from "@/components/form-error";
 
 const initialState: AuthFormState = {};
 
@@ -25,9 +26,7 @@ export function RegisterForm() {
           required
           className="border rounded px-3 py-2"
         />
-        {state?.fieldErrors?.name && (
-          <p className="text-sm text-red-600">{state.fieldErrors.name[0]}</p>
-        )}
+        <FieldError messages={state?.fieldErrors?.name} />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -41,9 +40,7 @@ export function RegisterForm() {
           required
           className="border rounded px-3 py-2"
         />
-        {state?.fieldErrors?.email && (
-          <p className="text-sm text-red-600">{state.fieldErrors.email[0]}</p>
-        )}
+        <FieldError messages={state?.fieldErrors?.email} />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -57,18 +54,10 @@ export function RegisterForm() {
           required
           className="border rounded px-3 py-2"
         />
-        {state?.fieldErrors?.password && (
-          <p className="text-sm text-red-600">
-            {state.fieldErrors.password[0]}
-          </p>
-        )}
+        <FieldError messages={state?.fieldErrors?.password} />
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-600" role="alert">
-          {state.error}
-        </p>
-      )}
+      <FormError message={state?.error} />
 
       <button
         type="submit"

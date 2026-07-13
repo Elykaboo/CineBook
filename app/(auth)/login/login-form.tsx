@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { loginUser, type AuthFormState } from "@/actions/auth";
+import { FormError } from "@/components/form-error";
 
 const initialState: AuthFormState = {};
 
@@ -37,11 +38,7 @@ export function LoginForm() {
         />
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-600" role="alert">
-          {state.error}
-        </p>
-      )}
+      <FormError message={state?.error} />
 
       <button
         type="submit"

@@ -88,6 +88,11 @@ function seatType(row: number, rows: number): SeatType {
 }
 
 async function main() {
+  // Reset derived data so this script is safe to re-run. Cascades take care
+  // of Showtime/Booking/BookingSeat/Seat via the FK constraints in the schema.
+  await prisma.movie.deleteMany();
+  await prisma.cinemaHall.deleteMany();
+
   const hashedPassword = await bcrypt.hash("password123", 10);
 
   await prisma.user.upsert({
