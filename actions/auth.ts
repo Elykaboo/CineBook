@@ -1,10 +1,53 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { AuthError } from "next-auth";
+import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { registerSchema } from "@/lib/validations/auth";
+import { loginSchema, registerSchema } from "@/lib/validations/auth";
 
-export async function registerUser(formData: FormData) {
+export type AuthFormState = {
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+};
+
+export async function loginUser(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  const parsed = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!parsed.success) {
+    return { error: "Invalid email or password" };
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: parsed.data.email },
+    });
+
+    await signIn("credentials", {
+      email: parsed.data.email,
+      password: parsed.data.password,
+      redirectTo: user?.role === "ADMIN" ? "/admin" : "/bookings",
+    });
+
+    return {};
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { error: "Invalid email or password" };
+    }
+    throw error;
+  }
+}
+
+export async function registerUser(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -12,14 +55,14 @@ export async function registerUser(formData: FormData) {
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.flatten().fieldErrors };
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
   const { name, email, password } = parsed.data;
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
-    return { error: { email: ["Email is already in use"] } };
+    return { fieldErrors: { email: ["Email is already in use"] } };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,5 +71,21 @@ export async function registerUser(formData: FormData) {
     data: { name, email, password: hashedPassword },
   });
 
-  return { success: true };
+  try {
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo: "/bookings",
+    });
+    return {};
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { error: "Account created, but sign-in failed. Please log in." };
+    }
+    throw error;
+  }
+}
+
+export async function logout() {
+  await signOut({ redirectTo: "/" });
 }

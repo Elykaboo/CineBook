@@ -7,10 +7,14 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+      const isAdminRoute = nextUrl.pathname.startsWith("/admin");
+      const isProtectedRoute =
+        isAdminRoute || nextUrl.pathname.startsWith("/bookings");
 
-      if (isOnDashboard) {
-        return isLoggedIn;
+      if (!isProtectedRoute) return true;
+      if (!isLoggedIn) return false;
+      if (isAdminRoute && auth.user.role !== "ADMIN") {
+        return Response.redirect(new URL("/bookings", nextUrl));
       }
       return true;
     },
