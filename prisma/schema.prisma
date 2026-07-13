@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum MovieStatus {
+  NOW_SHOWING
+  COMING_SOON
+}
+
+enum SeatType {
+  REGULAR
+  PREMIUM
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Movie {
+  id              String      @id @default(cuid())
+  title           String
+  description     String
+  genre           String
+  durationMinutes Int
+  posterUrl       String
+  rating          String
+  status          MovieStatus @default(COMING_SOON)
+  showtimes       Showtime[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model CinemaHall {
+  id        String     @id @default(cuid())
+  name      String
+  rows      Int
+  columns   Int
+  seats     Seat[]
+  showtimes Showtime[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Seat {
+  id           String        @id @default(cuid())
+  hallId       String
+  hall         CinemaHall    @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  row          Int
+  column       Int
+  type         SeatType      @default(REGULAR)
+  bookingSeats BookingSeat[]
+  createdAt    DateTime      @default(now())
+
+  @@unique([hallId, row, column])
+}
+
+model Showtime {
+  id        String     @id @default(cuid())
+  movieId   String
+  movie     Movie      @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  hallId    String
+  hall      CinemaHall @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  price     Decimal    @db.Decimal(10, 2)
+  bookings  Booking[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  showtimeId   String
+  showtime     Showtime      @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  totalPrice   Decimal       @db.Decimal(10, 2)
+  status       BookingStatus @default(PENDING)
+  bookingSeats BookingSeat[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model BookingSeat {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seatId    String
+  seat      Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  // Prevents the same seat being double-booked for the same showtime:
+  // showtimeId is denormalized here purely to make this composite unique constraint possible.
+  showtimeId String
+
+  @@unique([showtimeId, seatId])
+}
