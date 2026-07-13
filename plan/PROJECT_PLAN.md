@@ -35,28 +35,28 @@ Cinema Ticket Reservation System. Next.js 15 (App Router), TypeScript, PostgreSQ
 
 ## Phase 2 — Public Movie Browsing
 
-- [ ] Movie listing page (`/movies`) — grid of posters, title, genre, rating
-- [ ] Filter/tab by status: Now Showing vs Coming Soon
-- [ ] Movie detail page (`/movies/[id]`) — description, duration, rating, showtimes
-- [ ] Showtime list on detail page grouped by date
-- [ ] Empty/loading states for movie fetches
+- [x] Movie listing page (`/movies`) — grid of posters, title, genre, rating
+- [x] Filter/tab by status: Now Showing vs Coming Soon
+- [x] Movie detail page (`/movies/[id]`) — description, duration, rating, showtimes
+- [x] Showtime list on detail page grouped by date
+- [x] Empty/loading states for movie fetches (empty-category message; 404 via `notFound()` for bad IDs)
 - [ ] Basic search or genre filter (stretch)
 
 ---
 
 ## Phase 3 — Seat Selection & Booking Flow
 
-- [ ] Showtime page (`/showtimes/[id]`) — seat map rendered from hall rows/columns
-- [ ] Seat map reflects REGULAR vs PREMIUM pricing/styling
-- [ ] Real-time-ish seat availability (query already-booked seats for that showtime)
-- [ ] Seat selection state (multi-select, running total price)
-- [ ] Booking confirmation step (selected seats + total price review)
-- [ ] `createBooking` server action:
-  - [ ] Validates seats still available (transaction-safe against unique constraint)
-  - [ ] Creates Booking + BookingSeat rows atomically
-  - [ ] Sets status PENDING → CONFIRMED (or CONFIRMED directly for MVP)
-  - [ ] Handles race condition failure gracefully (seat taken mid-selection)
-- [ ] Booking success page / confirmation screen
+- [x] Showtime page (`/showtimes/[id]`) — seat map rendered from hall rows/columns
+- [x] Seat map reflects REGULAR vs PREMIUM styling (single price per showtime, not per seat type — matches current schema)
+- [x] Real-time-ish seat availability (query already-booked seats for that showtime)
+- [x] Seat selection state (multi-select, running total price)
+- [x] Booking confirmation step (selected seats + total price review)
+- [x] `createBooking` server action:
+  - [x] Validates seats still available (transaction-safe against unique constraint)
+  - [x] Creates Booking + BookingSeat rows atomically
+  - [x] Sets status CONFIRMED directly (MVP — no payment step exists yet)
+  - [x] Handles race condition failure gracefully (seat taken mid-selection) — verified with a concurrent-request test
+- [x] Booking success page / confirmation screen (`/bookings/[id]`)
 
 ---
 
