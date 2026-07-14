@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AdminSubnav } from "@/components/ui/admin-subnav";
 
 export default function AdminLayout({
   children,
@@ -7,13 +7,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex flex-col gap-6 p-8">
-      <nav className="flex gap-4 text-sm border-b pb-3">
-        <Link href="/admin">Overview</Link>
-        <Link href="/admin/movies">Movies</Link>
-        <Link href="/admin/halls">Halls</Link>
-        <Link href="/admin/showtimes">Showtimes</Link>
-        <Link href="/admin/bookings">Bookings</Link>
-      </nav>
+      <AdminSubnav />
       {children}
     </div>
   );

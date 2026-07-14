@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { CircleAlert } from "lucide-react";
 import { loginUser, type AuthFormState } from "@/actions/auth";
-import { FormError } from "@/components/form-error";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const initialState: AuthFormState = {};
 
@@ -11,47 +13,28 @@ export function LoginForm() {
   const [state, formAction, pending] = useActionState(loginUser, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 w-full max-w-sm">
-      <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          className="border rounded px-3 py-2"
-        />
-      </div>
+    <form action={formAction} className="flex w-full flex-col gap-4">
+      <Input label="Email" name="email" type="email" required />
+      <Input label="Password" name="password" type="password" required />
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          className="border rounded px-3 py-2"
-        />
-      </div>
+      {state?.error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-input border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+        >
+          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.75} />
+          <span>{state.error}</span>
+        </div>
+      )}
 
-      <FormError message={state?.error} />
+      <Button type="submit" size="lg" disabled={pending} className="w-full">
+        {pending ? "Signing in..." : "Log in"}
+      </Button>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-black text-white rounded px-3 py-2 disabled:opacity-50"
-      >
-        {pending ? "Signing in..." : "Sign in"}
-      </button>
-
-      <p className="text-sm text-center">
-        Don&apos;t have an account?{" "}
-        <Link href="/register" className="underline">
-          Register
+      <p className="text-center text-sm text-fg-2">
+        New to CineBook?{" "}
+        <Link href="/register" className="text-fg-brand hover:underline">
+          Create an account
         </Link>
       </p>
     </form>

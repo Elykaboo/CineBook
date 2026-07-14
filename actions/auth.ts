@@ -21,7 +21,9 @@ export async function loginUser(
   });
 
   if (!parsed.success) {
-    return { error: "Invalid email or password" };
+    return {
+      error: "That email and password don't match. Check them and try again.",
+    };
   }
 
   try {
@@ -38,7 +40,9 @@ export async function loginUser(
     return {};
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Invalid email or password" };
+      return {
+      error: "That email and password don't match. Check them and try again.",
+    };
     }
     throw error;
   }

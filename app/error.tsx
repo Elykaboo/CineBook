@@ -1,5 +1,8 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 export default function GlobalError({
   error,
   reset,
@@ -8,19 +11,21 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center flex-1 gap-4 p-8 text-center">
-      <h1 className="text-xl font-semibold">Something went wrong</h1>
-      <p className="text-sm text-gray-500">
-        {error.digest
-          ? `Error reference: ${error.digest}`
-          : "An unexpected error occurred."}
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-avatar bg-red-50">
+        <TriangleAlert className="h-6 w-6 text-red-600" strokeWidth={1.75} />
+      </span>
+      <h1 className="font-serif text-xl text-fg-1">Something went wrong</h1>
+      <p className="max-w-sm text-sm text-fg-2">
+        We couldn&apos;t load this page. This is usually temporary — try
+        again in a moment.
+        {error.digest && (
+          <span className="mt-1 block font-mono text-2xs text-fg-3">
+            Error reference: {error.digest}
+          </span>
+        )}
       </p>
-      <button
-        onClick={reset}
-        className="bg-black text-white rounded px-4 py-2 text-sm"
-      >
-        Try again
-      </button>
+      <Button onClick={reset}>Try again</Button>
     </div>
   );
 }

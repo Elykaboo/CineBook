@@ -117,8 +117,107 @@ Visual polish (responsive/accessibility/styling) deliberately deferred — UI is
 
 ---
 
+## Design Implementation
+
+Source: `plan/design/README.md` (full handoff spec) + `plan/design/tokens/*.css` (verbatim token
+values) + `plan/design/CineBook.dc.html` (visual reference only — layout/spacing/color/copy, not
+code to copy). Fonts: Lora (display/headings), DM Sans (UI/body), JetBrains Mono (status pills,
+seat labels, prices, timestamps). This replaces the plain-Tailwind placeholder UI from Phase 6.
+
+Each phase below is scoped to one session's worth of work so it can be done independently —
+foundation must go first, everything else can happen in any order after that.
+
+### Design Phase A — Foundation (must be done first) — ✅ Complete
+
+- [x] Add Lora, DM Sans, JetBrains Mono via `next/font/google` (`app/layout.tsx`)
+- [x] Port color tokens into Tailwind `@theme` (`app/globals.css`) — brand teal scale, neutrals, semantic fg/surface/border aliases, status colors, seat-state colors, poster tint palette (all as real Tailwind utilities, e.g. `bg-surface-2`, `text-fg-1`, verified in compiled CSS output, not just defined)
+- [x] Port typography (px-accurate sizes overriding Tailwind defaults, line-heights, letter-spacing), radius, and shadow tokens into `@theme`
+- [x] Build base primitives: `Button` (primary/secondary/ghost/danger × sm/md/lg), `Input`/`Textarea`/`Select` (label/error/helperText), `Card`, `Badge`, `Avatar` (initials, deterministic auto-color) — all under `components/ui/`
+- [x] Install Lucide Icons (`lucide-react`)
+- [x] Global page shell: `bg-surface-2` background, `text-fg-1` warm-black text on `<body>` in `app/layout.tsx`
+- [x] Verified via a temporary smoke-test route (removed after): all primitives render correct classes/content, and spot-checked the actually-served compiled CSS to confirm tokens resolve to real values (e.g. `.rounded-card { border-radius: 14px }`), not just present in source
+- [x] Production build passes with the new token system in place
+
+### Design Phase B — Shared Components — ✅ Complete
+
+- [x] `Navbar` — role-aware (guest: Log in/Register · user: My bookings + avatar · admin: Admin link + violet avatar), logo (clapperboard icon + "CineBook" in Lora) — verified live: guest/user/admin sessions each render the correct nav state
+- [x] `StatusPill` — CONFIRMED (green) / PENDING (amber, pulsing dot via `.status-dot-pulse`) / CANCELLED (gray) — built, not yet wired into a real page (happens in Phases G/H/M)
+- [x] `PosterTile` — typographic poster, tint bg deterministically derived from movie title (no `tint` field in the schema, matches the `Avatar` auto-color pattern), genre eyebrow + Lora title + rating chip — built, wired in Phase D/E
+- [x] `SeatButton` — 4 states (regular/premium/selected/taken), 26×28px (`h-6.5 w-7`), asymmetric `7px 7px 5px 5px` radius via `--radius-seat` — built, wired in Phase F
+- [x] `SeatMap` — rows × N cols with an aisle gap at the horizontal midpoint (generalized from the handoff's "12 cols, gap after col 6" example since real hall column counts vary), horizontal scroll on mobile, screen bar — built, wired in Phase F
+- [x] `AdminSubnav` — Overview / Movies / Halls / Showtimes / Bookings tabs with active-tab highlighting — verified live, all 5 tabs render and wired into `app/(dashboard)/admin/layout.tsx`
+- [x] Shared states: shimmer skeletons matching each page's real layout (`Skeleton` primitive) for movies/movie-detail/showtime/bookings/booking-detail/admin; global `error.tsx` (`triangle-alert` in red circle) and `not-found.tsx` (Lora "404") restyled — verified live (404 renders correct copy and a real HTTP 404 status)
+
+### Design Phase C — Auth Pages — ✅ Complete
+
+- [x] Login (`app/(auth)/login`) — centered 400px card (`max-w-100`), Lora "Welcome back", inline red error banner with `circle-alert` icon and exact handoff copy ("That email and password don't match. Check them and try again.") — verified live: page renders correctly, a real login still succeeds and establishes the correct session after the copy change
+- [x] Register (`app/(auth)/register`) — same card pattern, per-field validation copy from the handoff (email format message, password helper text) wired into `lib/validations/auth.ts` zod messages — verified live
+
+### Design Phase D — Movie Listing (`app/(public)/movies`)
+
+- [ ] "What's on" header, Now showing / Coming soon segmented tabs
+- [ ] Poster grid using `PosterTile`
+- [ ] Empty state per tab (film icon, copy from handoff)
+
+### Design Phase E — Movie Detail (`app/(public)/movies/[id]`)
+
+- [ ] Two-column layout: poster tile + title/meta/description
+- [ ] Showtimes grouped by date, outlined time+hall buttons with teal hover state
+- [ ] Empty state ("No upcoming showtimes scheduled")
+
+### Design Phase F — Seat Selection (`app/(public)/showtimes/[id]`) — most complex, budget extra time
+
+- [ ] Header (movie title + hall/date/time in mono)
+- [ ] `SeatMap` integration with legend (Regular $12 / Premium $18 / Selected / Taken)
+- [ ] Sticky summary bar (seat count, labels, total, "Book selected seats")
+- [ ] Guest state (teal prompt card instead of book button)
+- [ ] Race-condition error banner (seat taken mid-selection — action already returns this, just needs styling)
+- [ ] Mobile horizontal scroll for the seat grid
+
+### Design Phase G — Booking Confirmation (`app/(dashboard)/bookings/[id]`)
+
+- [ ] Centered 480px success layout, teal check circle
+- [ ] Ticket card: poster chip, movie, `StatusPill`, Hall/Showtime/Seats/Total grid, dashed perforation, mono confirmation code
+- [ ] "Browse more movies" + conditional "Cancel booking" (danger, upcoming only)
+
+### Design Phase H — My Bookings (`app/(dashboard)/bookings`)
+
+- [ ] Booking card list (poster chip, mono hall/time, `StatusPill`, price, conditional Cancel)
+- [ ] Empty state (ticket icon, copy from handoff, "Browse movies" CTA)
+
+### Design Phase I — Admin Overview (`app/(dashboard)/admin`)
+
+- [ ] Stat tiles (teal-50 icon chip + Lora number + label) for movies/halls/showtimes/bookings-today/active-bookings
+
+### Design Phase J — Admin Movies (`app/(dashboard)/admin/movies`)
+
+- [ ] Two-column: list rows (poster chip, mono meta, status chip, edit/delete icon buttons) + create/edit form
+
+### Design Phase K — Admin Halls (`app/(dashboard)/admin/halls`)
+
+- [ ] Table (Hall | Rows×Cols | Seats | Showtimes | delete) + create form with the "auto-generated seat grid" info note
+
+### Design Phase L — Admin Showtimes (`app/(dashboard)/admin/showtimes`)
+
+- [ ] Table (Movie | Hall | Date/time | Price | delete) + create form
+
+### Design Phase M — Admin Bookings (`app/(dashboard)/admin/bookings`)
+
+- [ ] Segmented status filter (All/Pending/Confirmed/Cancelled) + table (Movie/Customer/Hall-time/Seats/StatusPill/Price)
+
+### Design Phase N — Cross-Page QA Pass (do last)
+
+- [ ] Consistency check across all screens (spacing, type scale, color usage matches tokens exactly)
+- [ ] Responsive pass on every screen, especially the seat map
+- [ ] Favicon/app icon (teal clapperboard mark)
+- [ ] Verify animation timing (120–150ms micro-interactions, PENDING dot 1.6s pulse, button press `scale(0.982)`) — no decorative motion anywhere
+
+---
+
 ## Notes
 
 - Auth (Phase 1) unlocks meaningful testing of Phases 3–5, so it's the recommended next step.
 - Booking creation (Phase 3) is the highest-risk piece technically — the seat double-booking guard needs to be verified under concurrent requests, not just happy path.
 - Actual deployment (picking a host, connecting the account, going live) needs the user directly — an agent shouldn't be creating/configuring third-party hosting accounts unsupervised.
+- Design Phase A (foundation/tokens) is a hard prerequisite for every other Design Phase — do it first, in its own session, before touching any individual page.
+- `CineBook.dc.html` is a visual reference only, built on a throwaway component runtime — read it for layout/spacing/color/copy, never copy its markup/JS directly into the Next.js app.

@@ -1,26 +1,218 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ==========================================================
+   CineBook design tokens — ported from plan/design/tokens/
+   and plan/design/README.md (ScribeRAG Design System).
+   Everything below is declared inside @theme so Tailwind
+   generates real utility classes (bg-surface-2, text-fg-1,
+   rounded-card, shadow-dropdown, etc.) from these tokens.
+   ========================================================== */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Fonts (loaded via next/font in app/layout.tsx) ─── */
+  --font-serif: var(--font-lora), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Fira Code", ui-monospace,
+    monospace;
+
+  /* ── Font sizes — DS px values, override Tailwind defaults ── */
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+
+  /* ── Line heights ─────────────────────────── */
+  --leading-none: 1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 1.875;
+
+  /* ── Letter spacing ───────────────────────── */
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.12em;
+
+  /* ── Teal — brand ─────────────────────────── */
+  --color-teal-50: #ebf7f2;
+  --color-teal-100: #c3eadc;
+  --color-teal-200: #91d9c0;
+  --color-teal-300: #5acaa7;
+  --color-teal-400: #2eb388;
+  --color-teal-500: #1d9e75;
+  --color-teal-600: #178a64;
+  --color-teal-700: #107350;
+  --color-teal-800: #085c3d;
+  --color-teal-900: #03422b;
+
+  /* ── Neutral (warm-shifted grays) ─────────── */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f7f6f3;
+  --color-neutral-100: #eeecea;
+  --color-neutral-200: #e2ded9;
+  --color-neutral-300: #c8c4be;
+  --color-neutral-400: #a8a39c;
+  --color-neutral-500: #7d786f;
+  --color-neutral-600: #5c5750;
+  --color-neutral-700: #3e3a34;
+  --color-neutral-800: #2a2622;
+  --color-neutral-900: #1a1714;
+
+  /* ── Amber / Red / Blue / Violet ──────────── */
+  --color-amber-50: #fff8ec;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-500: #f59e0b;
+  --color-amber-700: #b45309;
+
+  --color-red-50: #fef2f2;
+  --color-red-200: #fecaca;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+
+  --color-blue-50: #eff6ff;
+  --color-blue-700: #1d4ed8;
+
+  --color-violet-50: #f5f3ff;
+  --color-violet-600: #7c3aed;
+
+  /* ── Semantic foreground ──────────────────── */
+  --color-fg-1: var(--color-neutral-900);
+  --color-fg-2: var(--color-neutral-600);
+  --color-fg-3: var(--color-neutral-400);
+  --color-fg-4: var(--color-neutral-300);
+  --color-fg-brand: var(--color-teal-500);
+  --color-fg-inverse: var(--color-neutral-0);
+
+  /* ── Semantic surface ──────────────────────── */
+  --color-surface-1: var(--color-neutral-0);
+  --color-surface-2: var(--color-neutral-50);
+  --color-surface-3: var(--color-neutral-100);
+  --color-surface-brand: var(--color-teal-500);
+  --color-surface-brand-subtle: var(--color-teal-50);
+
+  /* ── Semantic border ───────────────────────── */
+  --color-border-1: var(--color-neutral-200);
+  --color-border-2: var(--color-neutral-300);
+  --color-border-focus: var(--color-teal-500);
+  --color-border-error: var(--color-red-500);
+
+  /* ── Status badges ─────────────────────────── */
+  --color-status-confirmed-bg: #e7f6ec;
+  --color-status-confirmed-text: #15803d;
+  --color-status-confirmed-dot: #22c55e;
+
+  --color-status-pending-bg: #fff8ec;
+  --color-status-pending-text: #b45309;
+  --color-status-pending-dot: #f59e0b;
+
+  --color-status-cancelled-bg: #eeecea;
+  --color-status-cancelled-text: #7d786f;
+  --color-status-cancelled-dot: #a8a39c;
+
+  /* ── Seat states ───────────────────────────── */
+  --color-seat-regular-bg: #ffffff;
+  --color-seat-regular-border: #c8c4be;
+  --color-seat-regular-text: #7d786f;
+
+  --color-seat-premium-bg: #fff8ec;
+  --color-seat-premium-border: #fcd34d;
+  --color-seat-premium-text: #b45309;
+
+  --color-seat-selected-bg: #1d9e75;
+  --color-seat-selected-border: #178a64;
+  --color-seat-selected-text: #ffffff;
+
+  --color-seat-taken-bg: #eeecea;
+  --color-seat-taken-border: #e2ded9;
+  --color-seat-taken-text: #c8c4be;
+
+  /* ── Poster tints (typographic posters) ───── */
+  --color-poster-teal-bg: #0f3d30;
+  --color-poster-teal-fg: #ebf7f2;
+  --color-poster-neutral-bg: #2a2622;
+  --color-poster-neutral-fg: #f7f6f3;
+  --color-poster-amber-bg: #4a2e08;
+  --color-poster-amber-fg: #fff8ec;
+  --color-poster-red-bg: #4a1616;
+  --color-poster-red-fg: #fef2f2;
+  --color-poster-violet-bg: #2e1a52;
+  --color-poster-violet-fg: #f5f3ff;
+  --color-poster-blue-bg: #16294a;
+  --color-poster-blue-fg: #eff6ff;
+
+  /* ── Radius ────────────────────────────────── */
+  --radius-badge: 9999px;
+  --radius-pill: 9999px;
+  --radius-chip: 6px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-card: 14px;
+  --radius-panel: 12px;
+  --radius-modal: 18px;
+  --radius-toast: 12px;
+  --radius-avatar: 9999px;
+  --radius-logo: 12px;
+  --radius-tag: 4px;
+  /* Seat button — asymmetric corners per the DS spec */
+  --radius-seat: 7px 7px 5px 5px;
+
+  /* ── Shadows (flat aesthetic — borders over shadows) ── */
+  --shadow-card: none;
+  --shadow-card-hover:
+    0 1px 2px rgba(26, 23, 20, 0.04), 0 0 0 0.5px rgba(26, 23, 20, 0.07);
+  --shadow-dropdown:
+    0 4px 16px rgba(26, 23, 20, 0.09), 0 2px 4px rgba(26, 23, 20, 0.06),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+  --shadow-modal:
+    0 8px 32px rgba(26, 23, 20, 0.11), 0 3px 8px rgba(26, 23, 20, 0.07),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+  --shadow-tooltip:
+    0 2px 6px rgba(26, 23, 20, 0.07), 0 1px 2px rgba(26, 23, 20, 0.05),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+  --shadow-toast: var(--shadow-modal);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Tokens meant for direct var() / arbitrary-value use rather than
+   generating their own utility classes. */
+:root {
+  --ring-focus: 0 0 0 2px var(--color-neutral-0),
+    0 0 0 4px rgba(29, 158, 117, 0.45);
+  --max-prose: 680px;
+  --max-content: 1200px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface-2);
+  color: var(--color-fg-1);
+}
+
+/* Micro-interactions — fast ease-out, never bouncy, per the DS */
+* {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.status-dot-pulse {
+  animation: status-dot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes status-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }

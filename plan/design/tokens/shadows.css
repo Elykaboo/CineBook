@@ -1,0 +1,52 @@
+/* ScribeRAG Shadow Tokens
+ * ──────────────────────────────────────────────
+ * Flat aesthetic — prefer borders over shadows.
+ * Shadows only for floating elements (dropdowns,
+ * modals, tooltips). Never heavy or colored.
+ */
+
+:root {
+  /* ── Base ─────────────────────────────────────── */
+  --shadow-none: none;
+
+  /* Barely-there: cards, interactive hover */
+  --shadow-xs:
+    0 1px 2px rgba(26, 23, 20, 0.04),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+
+  /* Subtle: dropdowns, date pickers */
+  --shadow-sm:
+    0 2px 6px rgba(26, 23, 20, 0.07),
+    0 1px 2px rgba(26, 23, 20, 0.05),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+
+  /* Medium: modals, command palette */
+  --shadow-md:
+    0 4px 16px rgba(26, 23, 20, 0.09),
+    0 2px 4px rgba(26, 23, 20, 0.06),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+
+  /* Large: sheets, drawer panels */
+  --shadow-lg:
+    0 8px 32px rgba(26, 23, 20, 0.11),
+    0 3px 8px rgba(26, 23, 20, 0.07),
+    0 0 0 0.5px rgba(26, 23, 20, 0.07);
+
+  /* ── Semantic ─────────────────────────────────── */
+  --shadow-card:      var(--shadow-none);   /* Cards use border, not shadow */
+  --shadow-card-hover: var(--shadow-xs);    /* On hover only */
+  --shadow-dropdown:  var(--shadow-md);
+  --shadow-modal:     var(--shadow-lg);
+  --shadow-tooltip:   var(--shadow-sm);
+  --shadow-toast:     var(--shadow-md);
+
+  /* Focus ring — teal outline, white gap */
+  --ring-focus:
+    0 0 0 2px var(--color-neutral-0),
+    0 0 0 4px rgba(29, 158, 117, 0.45);
+
+  /* Focus ring on dark bg */
+  --ring-focus-dark:
+    0 0 0 2px rgba(255, 255, 255, 0.15),
+    0 0 0 4px rgba(29, 158, 117, 0.6);
+}

@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { CircleAlert } from "lucide-react";
 import { registerUser, type AuthFormState } from "@/actions/auth";
-import { FormError, FieldError } from "@/components/form-error";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const initialState: AuthFormState = {};
 
@@ -14,62 +16,51 @@ export function RegisterForm() {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 w-full max-w-sm">
-      <div className="flex flex-col gap-1">
-        <label htmlFor="name" className="text-sm font-medium">
-          Name
-        </label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <FieldError messages={state?.fieldErrors?.name} />
-      </div>
+    <form action={formAction} className="flex w-full flex-col gap-4">
+      <Input
+        label="Full name"
+        name="name"
+        type="text"
+        required
+        error={state?.fieldErrors?.name?.[0]}
+      />
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        required
+        error={state?.fieldErrors?.email?.[0]}
+      />
+      <Input
+        label="Password"
+        name="password"
+        type="password"
+        required
+        error={state?.fieldErrors?.password?.[0]}
+        helperText={
+          state?.fieldErrors?.password
+            ? undefined
+            : "Use 8 or more characters with a mix of letters and numbers."
+        }
+      />
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <FieldError messages={state?.fieldErrors?.email} />
-      </div>
+      {state?.error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-input border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+        >
+          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.75} />
+          <span>{state.error}</span>
+        </div>
+      )}
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <FieldError messages={state?.fieldErrors?.password} />
-      </div>
+      <Button type="submit" size="lg" disabled={pending} className="w-full">
+        {pending ? "Creating account..." : "Create account"}
+      </Button>
 
-      <FormError message={state?.error} />
-
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-black text-white rounded px-3 py-2 disabled:opacity-50"
-      >
-        {pending ? "Creating account..." : "Register"}
-      </button>
-
-      <p className="text-sm text-center">
+      <p className="text-center text-sm text-fg-2">
         Already have an account?{" "}
-        <Link href="/login" className="underline">
+        <Link href="/login" className="text-fg-brand hover:underline">
           Log in
         </Link>
       </p>

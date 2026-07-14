@@ -1,0 +1,135 @@
+/* ScribeRAG Color Tokens
+ * ──────────────────────────────────────────────
+ * Palette: deep teal primary, warm neutral surface,
+ * four source-type accent colors, semantic aliases.
+ */
+
+:root {
+  /* ── Teal — Primary Brand ─────────────────────── */
+  --color-teal-50:  #EBF7F2;
+  --color-teal-100: #C3EADC;
+  --color-teal-200: #91D9C0;
+  --color-teal-300: #5ACAA7;
+  --color-teal-400: #2EB388;
+  --color-teal-500: #1D9E75;  /* ← brand primary */
+  --color-teal-600: #178A64;
+  --color-teal-700: #107350;
+  --color-teal-800: #085C3D;
+  --color-teal-900: #03422B;
+
+  /* ── Neutral (warm-shifted grays) ─────────────── */
+  --color-neutral-0:   #FFFFFF;
+  --color-neutral-50:  #F7F6F3;  /* ← page background */
+  --color-neutral-100: #EEECEA;
+  --color-neutral-200: #E2DED9;
+  --color-neutral-300: #C8C4BE;
+  --color-neutral-400: #A8A39C;
+  --color-neutral-500: #7D786F;
+  --color-neutral-600: #5C5750;
+  --color-neutral-700: #3E3A34;
+  --color-neutral-800: #2A2622;
+  --color-neutral-900: #1A1714;  /* ← primary text */
+
+  /* ── Amber — Processing / Zoom citations ──────── */
+  --color-amber-50:  #FFF8EC;
+  --color-amber-100: #FEF0C7;
+  --color-amber-200: #FDE68A;
+  --color-amber-300: #FCD34D;
+  --color-amber-400: #FBBF24;
+  --color-amber-500: #F59E0B;
+  --color-amber-600: #D97706;
+  --color-amber-700: #B45309;
+  --color-amber-800: #92400E;
+  --color-amber-900: #78350F;
+
+  /* ── Red — Error / Failed / PDF citations ─────── */
+  --color-red-50:  #FEF2F2;
+  --color-red-100: #FEE2E2;
+  --color-red-200: #FECACA;
+  --color-red-300: #FCA5A5;
+  --color-red-400: #F87171;
+  --color-red-500: #EF4444;
+  --color-red-600: #DC2626;
+  --color-red-700: #B91C1C;
+  --color-red-800: #991B1B;
+  --color-red-900: #7F1D1D;
+
+  /* ── Blue — Google Docs citations ─────────────── */
+  --color-blue-50:  #EFF6FF;
+  --color-blue-100: #DBEAFE;
+  --color-blue-200: #BFDBFE;
+  --color-blue-300: #93C5FD;
+  --color-blue-400: #60A5FA;
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-blue-700: #1D4ED8;
+  --color-blue-800: #1E40AF;
+  --color-blue-900: #1E3A8A;
+
+  /* ── Violet — Loom citations ──────────────────── */
+  --color-violet-50:  #F5F3FF;
+  --color-violet-100: #EDE9FE;
+  --color-violet-200: #DDD6FE;
+  --color-violet-300: #C4B5FD;
+  --color-violet-400: #A78BFA;
+  --color-violet-500: #8B5CF6;
+  --color-violet-600: #7C3AED;
+  --color-violet-700: #6D28D9;
+  --color-violet-800: #5B21B6;
+  --color-violet-900: #4C1D95;
+
+  /* ── Semantic Foreground ──────────────────────── */
+  --fg-1:           var(--color-neutral-900);   /* Primary text */
+  --fg-2:           var(--color-neutral-600);   /* Secondary text */
+  --fg-3:           var(--color-neutral-400);   /* Placeholder / muted */
+  --fg-4:           var(--color-neutral-300);   /* Disabled */
+  --fg-brand:       var(--color-teal-500);      /* Brand accent */
+  --fg-inverse:     var(--color-neutral-0);     /* Text on dark */
+
+  /* ── Semantic Surface ─────────────────────────── */
+  --surface-1:            var(--color-neutral-0);   /* Cards, panels */
+  --surface-2:            var(--color-neutral-50);  /* Page background */
+  --surface-3:            var(--color-neutral-100); /* Subtle section */
+  --surface-brand:        var(--color-teal-500);    /* Brand fill */
+  --surface-brand-subtle: var(--color-teal-50);     /* Active nav bg */
+
+  /* ── Semantic Border ──────────────────────────── */
+  --border-1:     var(--color-neutral-200);     /* Default (0.5–1px) */
+  --border-2:     var(--color-neutral-300);     /* Stronger */
+  --border-focus: var(--color-teal-500);        /* Focus ring */
+  --border-error: var(--color-red-500);         /* Error state */
+
+  /* ── Source Citation Colors ───────────────────── */
+  --source-loom-bg:     var(--color-violet-50);
+  --source-loom-text:   var(--color-violet-600);
+  --source-loom-border: var(--color-violet-200);
+
+  --source-gdoc-bg:     var(--color-blue-50);
+  --source-gdoc-text:   var(--color-blue-700);
+  --source-gdoc-border: var(--color-blue-200);
+
+  --source-pdf-bg:      var(--color-red-50);
+  --source-pdf-text:    var(--color-red-600);
+  --source-pdf-border:  var(--color-red-200);
+
+  --source-zoom-bg:     var(--color-amber-50);
+  --source-zoom-text:   var(--color-amber-700);
+  --source-zoom-border: var(--color-amber-200);
+
+  /* ── Status Badge Colors ──────────────────────── */
+  --status-indexed-bg:      var(--color-teal-50);
+  --status-indexed-text:    var(--color-teal-700);
+  --status-indexed-dot:     var(--color-teal-500);
+
+  --status-processing-bg:   var(--color-amber-50);
+  --status-processing-text: var(--color-amber-700);
+  --status-processing-dot:  var(--color-amber-500);
+
+  --status-failed-bg:       var(--color-red-50);
+  --status-failed-text:     var(--color-red-600);
+  --status-failed-dot:      var(--color-red-500);
+
+  --status-draft-bg:        var(--color-neutral-100);
+  --status-draft-text:      var(--color-neutral-500);
+  --status-draft-dot:       var(--color-neutral-400);
+}

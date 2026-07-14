@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/tokens/colors.css">
+<link rel="stylesheet" href="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/tokens/typography.css">
+<link rel="stylesheet" href="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/tokens/radius.css">
+<link rel="stylesheet" href="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/tokens/shadows.css">
+<link rel="stylesheet" href="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/styles.css">
+<script src="_ds/scriberag-design-system-832e0903-5fcc-442c-a2f9-c4e23253d16c/_ds_bundle.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface-2); color: var(--fg-1); font-family: 'DM Sans', system-ui, sans-serif; }
+  a { color: var(--color-teal-600); text-decoration: none; }
+  a:hover { color: var(--color-teal-700); text-decoration: underline; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--color-neutral-200); border-radius: 8px; border: 3px solid var(--surface-2); }
+  @keyframes cb-pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  @keyframes cb-spin { to { transform: rotate(360deg); } }
+  @keyframes cb-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+  .cb-skel { background: linear-gradient(90deg, var(--color-neutral-100) 25%, var(--color-neutral-200) 37%, var(--color-neutral-100) 63%); background-size: 800px 100%; animation: cb-shimmer 1.4s infinite linear; border-radius: 8px; }
+  .cb-seat:hover { filter: brightness(0.97); }
+</style>
+</helmet>
+<div style="display:flex; height:100vh; width:100%; overflow:hidden;">
+
+  <aside style="width:236px; flex-shrink:0; background:var(--surface-1); border-right:1px solid var(--border-1); display:flex; flex-direction:column; height:100%;">
+    <div style="padding:18px 18px 14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border-1);">
+      <div style="width:32px; height:32px; border-radius:9px; background:var(--color-teal-500); display:flex; align-items:center; justify-content:center; color:#fff;"><i data-lucide="clapperboard" style="width:18px;height:18px;"></i></div>
+      <div style="display:flex; flex-direction:column; line-height:1.05;">
+        <span style="font-family:'Lora',serif; font-size:17px; font-weight:600; color:var(--fg-1);">CineBook</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.08em; color:var(--fg-3); text-transform:uppercase;">screen index</span>
+      </div>
+    </div>
+
+    <div style="padding:12px 14px 8px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--fg-3); text-transform:uppercase; margin-bottom:7px; padding-left:4px;">Viewing as</div>
+      <div style="display:flex; gap:4px; background:var(--surface-3); border-radius:9px; padding:3px;">
+        <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
+          <button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <nav style="flex:1; overflow-y:auto; padding:6px 10px 18px;">
+      <sc-for list="{{ navGroups }}" as="group" hint-placeholder-count="4">
+        <div style="margin-top:14px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--fg-3); text-transform:uppercase; margin:0 0 6px 8px;">{{ group.label }}</div>
+          <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="3">
+            <button onClick="{{ item.onClick }}" style="{{ item.style }}">
+              <i data-lucide="{{ item.icon }}" style="width:15px;height:15px;flex-shrink:0;"></i>
+              <span>{{ item.label }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+  </aside>
+
+  <main style="flex:1; height:100%; overflow-y:auto; background:var(--surface-2); display:flex; flex-direction:column;">
+    <div style="position:sticky; top:0; z-index:20; background:rgba(247,246,243,0.85); backdrop-filter:none; border-bottom:1px solid var(--border-1); padding:12px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <span style="font-family:'Lora',serif; font-size:18px; font-weight:600; color:var(--fg-1);">{{ screenTitle }}</span>
+        <span style="font-size:11px; color:var(--fg-2);">{{ screenSub }}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <sc-if value="{{ demoToggles }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; gap:6px;">
+            <sc-for list="{{ demoToggles }}" as="t" hint-placeholder-count="2">
+              <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ deviceToggle }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; gap:3px; background:var(--surface-3); border-radius:9px; padding:3px;">
+            <button onClick="{{ setDesktop }}" style="{{ deskStyle }}">Desktop</button>
+            <button onClick="{{ setMobile }}" style="{{ mobStyle }}">Mobile</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="{{ stageStyle }}">
+      <div style="{{ frameStyle }}">
+
+        <sc-if value="{{ showNavbar }}" hint-placeholder-val="{{ true }}">
+          <header style="{{ navbarStyle }}">
+            <div style="display:flex; align-items:center; gap:22px;">
+              <div style="display:flex; align-items:center; gap:9px; cursor:pointer;" onClick="{{ goMovies }}">
+                <div style="width:28px; height:28px; border-radius:8px; background:var(--color-teal-500); display:flex; align-items:center; justify-content:center; color:#fff;"><i data-lucide="clapperboard" style="width:16px;height:16px;"></i></div>
+                <span style="font-family:'Lora',serif; font-size:18px; font-weight:600;">CineBook</span>
+              </div>
+              <nav style="display:flex; gap:4px;">
+                <button onClick="{{ goMovies }}" style="{{ navMoviesStyle }}">Movies</button>
+              </nav>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button onClick="{{ goLogin }}" style="height:34px; padding:0 14px; border-radius:10px; border:none; background:transparent; color:var(--fg-2); font-family:'DM Sans'; font-size:13px; font-weight:500; cursor:pointer;">Log in</button>
+                  <button onClick="{{ goRegister }}" style="height:34px; padding:0 14px; border-radius:10px; border:1.5px solid var(--color-teal-500); background:transparent; color:var(--color-teal-500); font-family:'DM Sans'; font-size:13px; font-weight:500; cursor:pointer;">Register</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <button onClick="{{ goAccount }}" style="height:34px; padding:0 12px; border-radius:10px; border:none; background:transparent; color:var(--fg-2); font-family:'DM Sans'; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px;"><i data-lucide="{{ accountIcon }}" style="width:15px;height:15px;"></i>{{ accountLabel }}</button>
+                  <div style="width:1px; height:20px; background:var(--border-1);"></div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:28px; height:28px; border-radius:9999px; background:{{ avatarColor }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; font-family:'DM Sans';">{{ userInitials }}</div>
+                    <span style="font-size:13px; font-weight:500; color:var(--fg-1);">{{ userName }}</span>
+                  </div>
+                  <button onClick="{{ goLogin }}" style="height:34px; padding:0 10px; border-radius:10px; border:none; background:transparent; color:var(--fg-3); font-family:'DM Sans'; font-size:13px; font-weight:500; cursor:pointer;">Log out</button>
+                </div>
+              </sc-if>
+            </div>
+          </header>
+        </sc-if>
+
+        <sc-if value="{{ isAdminScreen }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; gap:4px; padding:10px 22px; border-bottom:1px solid var(--border-1); background:var(--surface-1); overflow-x:auto;">
+            <sc-for list="{{ adminNav }}" as="a" hint-placeholder-count="5">
+              <button onClick="{{ a.onClick }}" style="{{ a.style }}"><i data-lucide="{{ a.icon }}" style="width:14px;height:14px;"></i><span>{{ a.label }}</span></button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="{{ bodyStyle }}">
+
+          <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+            <div style="max-width:400px; margin:40px auto; display:flex; flex-direction:column; gap:22px;">
+              <div style="text-align:center; display:flex; flex-direction:column; gap:6px;">
+                <h1 style="font-family:'Lora',serif; font-size:26px; font-weight:600; margin:0;">Welcome back</h1>
+                <p style="margin:0; font-size:13px; color:var(--fg-2);">Log in to book seats and manage your tickets.</p>
+              </div>
+              <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:24px; display:flex; flex-direction:column; gap:16px;">
+                <sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; align-items:center; gap:8px; background:var(--color-red-50); border:1px solid var(--color-red-200); color:var(--color-red-600); border-radius:10px; padding:10px 12px; font-size:12px;"><i data-lucide="alert-circle" style="width:15px;height:15px;flex-shrink:0;"></i><span>That email and password don't match. Check them and try again.</span></div>
+                </sc-if>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Email" type="email" placeholder="you@example.com" hint-size="100%,58px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Password" type="password" placeholder="••••••••" hint-size="100%,58px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" size="lg" on-click="{{ doLogin }}" style="{{ fullBtn }}" hint-size="100%,40px">Log in</x-import>
+                <button onClick="{{ toggleLoginErr }}" style="align-self:center; background:none; border:none; color:var(--fg-3); font-size:11px; cursor:pointer; text-decoration:underline;">preview error state</button>
+              </div>
+              <p style="text-align:center; font-size:13px; color:var(--fg-2); margin:0;">New to CineBook? <a href="#" onClick="{{ goRegister }}">Create an account</a></p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ true }}">
+            <div style="max-width:400px; margin:40px auto; display:flex; flex-direction:column; gap:22px;">
+              <div style="text-align:center; display:flex; flex-direction:column; gap:6px;">
+                <h1 style="font-family:'Lora',serif; font-size:26px; font-weight:600; margin:0;">Create your account</h1>
+                <p style="margin:0; font-size:13px; color:var(--fg-2);">It takes a minute. Then you can book seats.</p>
+              </div>
+              <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:24px; display:flex; flex-direction:column; gap:16px;">
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Full name" placeholder="Jordan Reeves" hint-size="100%,58px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Email" type="email" value="jordanexample.com" error="Enter a valid email address, like you@example.com." hint-size="100%,72px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Password" type="password" placeholder="At least 8 characters" helper-text="Use 8 or more characters with a mix of letters and numbers." hint-size="100%,72px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" size="lg" on-click="{{ goMovies }}" style="{{ fullBtn }}" hint-size="100%,40px">Create account</x-import>
+              </div>
+              <p style="text-align:center; font-size:13px; color:var(--fg-2); margin:0;">Already have an account? <a href="#" onClick="{{ goLogin }}">Log in</a></p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMovies }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:26px; display:flex; flex-direction:column; gap:20px;">
+              <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                <div>
+                  <h1 style="font-family:'Lora',serif; font-size:27px; font-weight:600; margin:0 0 4px;">What's on</h1>
+                  <p style="margin:0; font-size:13px; color:var(--fg-2);">Browse the current lineup and what's arriving soon.</p>
+                </div>
+                <div style="display:flex; gap:4px; background:var(--surface-3); border-radius:10px; padding:3px;">
+                  <button onClick="{{ tabNow }}" style="{{ tabNowStyle }}">Now showing</button>
+                  <button onClick="{{ tabComing }}" style="{{ tabComingStyle }}">Coming soon</button>
+                </div>
+              </div>
+              <sc-if value="{{ moviesEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:14px; padding:64px 20px; text-align:center;">
+                  <div style="width:76px; height:76px; border-radius:9999px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; color:var(--fg-3);"><i data-lucide="film" style="width:32px;height:32px;"></i></div>
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span style="font-family:'Lora',serif; font-size:19px; font-weight:600;">No movies in this category yet</span>
+                    <span style="font-size:13px; color:var(--fg-2);">Check back soon — new titles are added every week.</span>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ moviesShown }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:18px;">
+                  <sc-for list="{{ visibleMovies }}" as="m" hint-placeholder-count="8">
+                    <div onClick="{{ m.onClick }}" style="cursor:pointer; display:flex; flex-direction:column; gap:10px; background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:10px; transition:border-color .12s ease;">
+                      <div style="{{ m.posterStyle }}">
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; opacity:.7;">{{ m.genre }}</span>
+                        <span style="font-family:'Lora',serif; font-size:20px; font-weight:600; line-height:1.15; text-wrap:balance;">{{ m.title }}</span>
+                        <span style="{{ m.ratingChip }}">{{ m.rating }}</span>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:3px; padding:2px 4px 4px;">
+                        <span style="font-size:14px; font-weight:600; color:var(--fg-1);">{{ m.title }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2);">{{ m.meta }}</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:26px; display:flex; flex-direction:column; gap:24px;">
+              <div style="display:flex; gap:26px; flex-wrap:wrap;">
+                <div style="{{ detailPoster }}">
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; opacity:.7;">Sci-Fi</span>
+                  <span style="font-family:'Lora',serif; font-size:32px; font-weight:600; line-height:1.1;">Neon Harbor</span>
+                </div>
+                <div style="flex:1; min-width:280px; display:flex; flex-direction:column; gap:14px;">
+                  <div>
+                    <h1 style="font-family:'Lora',serif; font-size:30px; font-weight:600; margin:0 0 8px;">Neon Harbor</h1>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <span style="{{ metaPill }}">Sci-Fi</span>
+                      <span style="{{ metaPill }}">2h 14m</span>
+                      <span style="{{ metaPill }}">PG-13</span>
+                    </div>
+                  </div>
+                  <p style="margin:0; font-size:14px; line-height:1.65; color:var(--fg-2); max-width:60ch;">A dockworker in a flooded megacity discovers the tide is being controlled by someone who remembers the world before the water. Part detective story, part elegy, Neon Harbor trades spectacle for a slow, luminous unease — and a question about who gets to decide when the water stops rising.</p>
+                  <div style="margin-top:6px;">
+                    <h2 style="font-family:'Lora',serif; font-size:17px; font-weight:600; margin:0 0 12px;">Showtimes</h2>
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                      <sc-for list="{{ showtimeDays }}" as="day" hint-placeholder-count="2">
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;">{{ day.label }}</span>
+                          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <sc-for list="{{ day.times }}" as="st" hint-placeholder-count="4">
+                              <button onClick="{{ st.onClick }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; background:var(--surface-1); border:1px solid var(--border-2); border-radius:10px; padding:9px 14px; cursor:pointer; transition:border-color .12s ease, background .12s ease;" style-hover="border-color:var(--color-teal-500); background:var(--color-teal-50);">
+                                <span style="font-size:15px; font-weight:600; color:var(--fg-1);">{{ st.time }}</span>
+                                <span style="font-size:11px; color:var(--fg-2);">{{ st.hall }}</span>
+                              </button>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSeats }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:22px; display:flex; flex-direction:column; gap:18px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <h1 style="font-family:'Lora',serif; font-size:22px; font-weight:600; margin:0;">Neon Harbor</h1>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2);">Hall 3 · IMAX · Today, Mon Jul 14 · 7:30 PM</span>
+              </div>
+
+              <sc-if value="{{ race }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:flex-start; gap:9px; background:var(--color-red-50); border:1px solid var(--color-red-200); color:var(--color-red-600); border-radius:12px; padding:12px 14px; font-size:12.5px; line-height:1.5;"><i data-lucide="alert-triangle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>One or more of your selected seats were just booked by someone else. They've been cleared — pick again from the available seats below.</span></div>
+              </sc-if>
+
+              <div style="display:flex; flex-direction:column; align-items:center; gap:22px; padding:8px 0;">
+                <div style="width:100%; max-width:520px; display:flex; flex-direction:column; align-items:center; gap:3px;">
+                  <div style="width:80%; height:8px; border-radius:0 0 40px 40px / 0 0 8px 8px; background:var(--color-neutral-200);"></div>
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.3em; color:var(--fg-3); text-transform:uppercase;">Screen</span>
+                </div>
+
+                <div style="width:100%; overflow-x:auto; padding-bottom:6px;">
+                  <div style="display:flex; flex-direction:column; gap:7px; width:fit-content; margin:0 auto;">
+                    <sc-for list="{{ seatRows }}" as="row" hint-placeholder-count="8">
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--fg-3); text-align:center;">{{ row.row }}</span>
+                        <div style="display:flex; gap:6px;">
+                          <sc-for list="{{ row.seats }}" as="seat" hint-placeholder-count="12">
+                            <button class="cb-seat" onClick="{{ seat.onClick }}" style="{{ seat.style }}">{{ seat.num }}</button>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:18px; flex-wrap:wrap; justify-content:center;">
+                  <div style="display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--fg-2);"><span style="width:16px;height:15px;border-radius:5px 5px 3px 3px;background:#fff;border:1px solid var(--color-neutral-300);"></span>Regular · $12</div>
+                  <div style="display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--fg-2);"><span style="width:16px;height:15px;border-radius:5px 5px 3px 3px;background:#FFF8EC;border:1px solid #FCD34D;"></span>Premium · $18</div>
+                  <div style="display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--fg-2);"><span style="width:16px;height:15px;border-radius:5px 5px 3px 3px;background:var(--color-teal-500);border:1px solid var(--color-teal-600);"></span>Selected</div>
+                  <div style="display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--fg-2);"><span style="width:16px;height:15px;border-radius:5px 5px 3px 3px;background:var(--color-neutral-100);border:1px solid var(--color-neutral-200);"></span>Taken</div>
+                </div>
+              </div>
+
+              <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; background:var(--color-teal-50); border:1px solid var(--color-teal-200); border-radius:14px; padding:16px 18px;">
+                  <div style="display:flex; align-items:center; gap:11px;"><i data-lucide="lock" style="width:18px;height:18px;color:var(--color-teal-700);"></i><span style="font-size:13.5px; color:var(--color-teal-800);">Log in to reserve your seats. Your selection will be waiting.</span></div>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" on-click="{{ goLogin }}" hint-size="auto,34px">Log in to book</x-import>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:14px 18px; position:sticky; bottom:0;">
+                  <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-size:13px; font-weight:600; color:var(--fg-1);">{{ seatCount }} seats selected</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2);">{{ selectedLabels }}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="text-align:right;">
+                      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;">Total</div>
+                      <div style="font-family:'Lora',serif; font-size:22px; font-weight:600; color:var(--fg-1);">{{ seatTotal }}</div>
+                    </div>
+                    <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" size="lg" disabled="{{ cannotBook }}" on-click="{{ goConfirm }}" hint-size="auto,40px">Book selected seats</x-import>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isConfirmation }}" hint-placeholder-val="{{ true }}">
+            <div style="max-width:480px; margin:36px auto; display:flex; flex-direction:column; gap:20px;">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;">
+                <div style="width:52px; height:52px; border-radius:9999px; background:var(--color-teal-50); display:flex; align-items:center; justify-content:center; color:var(--color-teal-600);"><i data-lucide="check" style="width:26px;height:26px;"></i></div>
+                <h1 style="font-family:'Lora',serif; font-size:24px; font-weight:600; margin:0;">You're booked</h1>
+                <p style="margin:0; font-size:13px; color:var(--fg-2);">A confirmation has been sent to jordan@example.com.</p>
+              </div>
+              <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:18px; overflow:hidden;">
+                <div style="padding:20px 22px; display:flex; gap:16px; align-items:center; border-bottom:1px dashed var(--border-2);">
+                  <div style="width:56px;height:76px;border-radius:9px;background:#0F3D30;color:#EBF7F2;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:24px;font-weight:600;">N</div>
+                  <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-family:'Lora',serif; font-size:20px; font-weight:600;">Neon Harbor</span>
+                    <span style="{{ confPillStyle }}"><span style="{{ confDotStyle }}"></span>{{ confPillLabel }}</span>
+                  </div>
+                </div>
+                <div style="padding:18px 22px; display:grid; grid-template-columns:1fr 1fr; gap:16px 20px;">
+                  <div style="display:flex; flex-direction:column; gap:3px;"><span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;">Hall</span><span style="font-size:13.5px; color:var(--fg-1);">Hall 3 · IMAX</span></div>
+                  <div style="display:flex; flex-direction:column; gap:3px;"><span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;">Showtime</span><span style="font-size:13.5px; color:var(--fg-1);">Sat Jul 19 · 7:30 PM</span></div>
+                  <div style="display:flex; flex-direction:column; gap:3px;"><span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;">Seats</span><span style="font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--fg-1);">E5, E6</span></div>
+                  <div style="display:flex; flex-direction:column; gap:3px;"><span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;">Total paid</span><span style="font-family:'Lora',serif; font-size:18px; font-weight:600; color:var(--fg-1);">$36</span></div>
+                </div>
+                <div style="padding:14px 22px; border-top:1px solid var(--border-1); background:var(--surface-2); display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2); letter-spacing:.05em;">CNB-7F3A-19</span>
+                  <div style="width:60px; height:24px; background:repeating-linear-gradient(90deg,var(--fg-1) 0 2px, transparent 2px 4px);"></div>
+                </div>
+              </div>
+              <div style="display:flex; gap:10px; justify-content:center;">
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="secondary" on-click="{{ goMoviesLink }}" hint-size="auto,34px">Browse more movies</x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="danger" hint-size="auto,34px">Cancel booking</x-import>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMyBookings }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:26px; display:flex; flex-direction:column; gap:18px;">
+              <div><h1 style="font-family:'Lora',serif; font-size:27px; font-weight:600; margin:0 0 4px;">My bookings</h1><p style="margin:0; font-size:13px; color:var(--fg-2);">Your upcoming and past reservations.</p></div>
+              <sc-if value="{{ bookingsEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:14px; padding:60px 20px; text-align:center;">
+                  <div style="width:76px; height:76px; border-radius:9999px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; color:var(--fg-3);"><i data-lucide="ticket" style="width:32px;height:32px;"></i></div>
+                  <div style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'Lora',serif; font-size:19px; font-weight:600;">You haven't booked any tickets yet</span><span style="font-size:13px; color:var(--fg-2);">When you book a showtime, it'll show up here.</span></div>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" on-click="{{ goMoviesLink }}" hint-size="auto,34px">Browse movies</x-import>
+                </div>
+              </sc-if>
+              <sc-if value="{{ bookingsShown }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                  <sc-for list="{{ myBookings }}" as="b" hint-placeholder-count="4">
+                    <div style="display:flex; align-items:center; gap:16px; background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:14px 16px; flex-wrap:wrap;">
+                      <div style="{{ b.chipStyle }}">{{ b.initial }}</div>
+                      <div style="flex:1; min-width:180px; display:flex; flex-direction:column; gap:4px;">
+                        <span style="font-size:15px; font-weight:600; color:var(--fg-1);">{{ b.movie }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2);">{{ b.hall }} · {{ b.when }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-3);">Seats {{ b.seats }}</span>
+                      </div>
+                      <span style="{{ b.pillStyle }}"><span style="{{ b.dotStyle }}"></span>{{ b.pillLabel }}</span>
+                      <div style="text-align:right;"><div style="font-family:'Lora',serif; font-size:17px; font-weight:600;">{{ b.price }}</div></div>
+                      <sc-if value="{{ b.canCancel }}" hint-placeholder-val="{{ true }}">
+                        <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="ghost" size="sm" hint-size="auto,28px">Cancel</x-import>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAdminOverview }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:26px; display:flex; flex-direction:column; gap:20px;">
+              <div><h1 style="font-family:'Lora',serif; font-size:26px; font-weight:600; margin:0 0 4px;">Overview</h1><p style="margin:0; font-size:13px; color:var(--fg-2);">A snapshot of the CineBook system.</p></div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:14px;">
+                <sc-for list="{{ stats }}" as="t" hint-placeholder-count="5">
+                  <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:10px;">
+                    <div style="width:34px;height:34px;border-radius:9px;background:var(--color-teal-50);color:var(--color-teal-600);display:flex;align-items:center;justify-content:center;"><i data-lucide="{{ t.i }}" style="width:18px;height:18px;"></i></div>
+                    <div style="font-family:'Lora',serif; font-size:30px; font-weight:600; line-height:1;">{{ t.v }}</div>
+                    <div style="font-size:12.5px; color:var(--fg-2);">{{ t.l }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAdminMovies }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:24px; display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start;">
+              <div style="flex:2; min-width:340px; display:flex; flex-direction:column; gap:12px;">
+                <h1 style="font-family:'Lora',serif; font-size:22px; font-weight:600; margin:0;">Movies</h1>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; overflow:hidden;">
+                  <sc-for list="{{ adminMoviesVM }}" as="m" hint-placeholder-count="6">
+                    <div style="display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--border-1);">
+                      <div style="{{ m.chipStyle }}">{{ m.initial }}</div>
+                      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;">
+                        <span style="font-size:14px; font-weight:600;">{{ m.title }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2);">{{ m.genre }} · {{ m.dur }} · {{ m.rating }}</span>
+                      </div>
+                      <span style="{{ m.statusStyle }}">{{ m.statusLabel }}</span>
+                      <div style="display:flex; gap:2px;">
+                        <button style="width:30px;height:30px;border:none;background:transparent;border-radius:8px;color:var(--fg-2);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:var(--surface-3);"><i data-lucide="pencil" style="width:15px;height:15px;"></i></button>
+                        <button style="width:30px;height:30px;border:none;background:transparent;border-radius:8px;color:var(--color-red-600);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:var(--color-red-50);"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1; min-width:280px; background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:14px;">
+                <span style="font-family:'Lora',serif; font-size:16px; font-weight:600;">New movie</span>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Title" placeholder="Movie title" hint-size="100%,58px"></x-import>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label style="font-size:11px; font-weight:500; color:var(--fg-2);">Description</label><textarea placeholder="Short synopsis" style="font-family:'DM Sans'; font-size:13px; border:1px solid var(--border-1); border-radius:10px; padding:10px 12px; min-height:72px; resize:vertical; color:var(--fg-1); outline:none;"></textarea></div>
+                <div style="display:flex; gap:10px;">
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Genre" placeholder="Sci-Fi" hint-size="100%,58px"></x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Duration" placeholder="2h 14m" hint-size="100%,58px"></x-import>
+                </div>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Poster URL" placeholder="https://…" hint-size="100%,58px"></x-import>
+                <div style="display:flex; gap:10px;">
+                  <div style="flex:1; display:flex; flex-direction:column; gap:5px;"><label style="font-size:11px; font-weight:500; color:var(--fg-2);">Rating</label><select style="height:36px; font-family:'DM Sans'; font-size:13px; border:1px solid var(--border-1); border-radius:10px; padding:0 10px; background:var(--surface-1); color:var(--fg-1); outline:none;"><option>PG</option><option>PG-13</option><option>R</option></select></div>
+                  <div style="flex:1; display:flex; flex-direction:column; gap:5px;"><label style="font-size:11px; font-weight:500; color:var(--fg-2);">Status</label><select style="height:36px; font-family:'DM Sans'; font-size:13px; border:1px solid var(--border-1); border-radius:10px; padding:0 10px; background:var(--surface-1); color:var(--fg-1); outline:none;"><option>Now Showing</option><option>Coming Soon</option></select></div>
+                </div>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" style="{{ fullBtn }}" hint-size="100%,34px">Save movie</x-import>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAdminHalls }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:24px; display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start;">
+              <div style="flex:2; min-width:340px; display:flex; flex-direction:column; gap:12px;">
+                <h1 style="font-family:'Lora',serif; font-size:22px; font-weight:600; margin:0;">Cinema halls</h1>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; overflow:hidden;">
+                  <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 40px; gap:12px; padding:10px 16px; border-bottom:1px solid var(--border-1); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;"><span>Hall</span><span>Rows × Cols</span><span>Seats</span><span>Showtimes</span><span></span></div>
+                  <sc-for list="{{ halls }}" as="h" hint-placeholder-count="3">
+                    <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 40px; gap:12px; padding:13px 16px; border-bottom:1px solid var(--border-1); align-items:center; font-size:13px;">
+                      <span style="font-weight:600;">{{ h.name }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; color:var(--fg-2);">{{ h.dims }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; color:var(--fg-2);">{{ h.seats }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; color:var(--fg-2);">{{ h.shows }}</span>
+                      <button style="width:30px;height:30px;border:none;background:transparent;border-radius:8px;color:var(--color-red-600);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:var(--color-red-50);"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1; min-width:260px; background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:14px;">
+                <span style="font-family:'Lora',serif; font-size:16px; font-weight:600;">New hall</span>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Hall name" placeholder="Hall 4 · Rooftop" hint-size="100%,58px"></x-import>
+                <div style="display:flex; gap:10px;">
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Rows" type="number" placeholder="10" hint-size="100%,58px"></x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Columns" type="number" placeholder="16" hint-size="100%,58px"></x-import>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; background:var(--color-teal-50); border-radius:10px; padding:10px 12px; font-size:11.5px; color:var(--color-teal-800);"><i data-lucide="info" style="width:14px;height:14px;flex-shrink:0;"></i><span>The seat grid is generated automatically from rows × columns.</span></div>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" style="{{ fullBtn }}" hint-size="100%,34px">Create hall</x-import>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAdminShowtimes }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:24px; display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start;">
+              <div style="flex:2; min-width:360px; display:flex; flex-direction:column; gap:12px;">
+                <h1 style="font-family:'Lora',serif; font-size:22px; font-weight:600; margin:0;">Showtimes</h1>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; overflow:hidden;">
+                  <div style="display:grid; grid-template-columns:1.4fr 1.2fr 1.4fr 0.7fr 40px; gap:12px; padding:10px 16px; border-bottom:1px solid var(--border-1); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;"><span>Movie</span><span>Hall</span><span>Date / time</span><span>Price</span><span></span></div>
+                  <sc-for list="{{ showtimesVM }}" as="st" hint-placeholder-count="5">
+                    <div style="display:grid; grid-template-columns:1.4fr 1.2fr 1.4fr 0.7fr 40px; gap:12px; padding:13px 16px; border-bottom:1px solid var(--border-1); align-items:center; font-size:13px;">
+                      <span style="font-weight:600;">{{ st.movie }}</span>
+                      <span style="color:var(--fg-2);">{{ st.hall }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--fg-2);">{{ st.when }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; font-weight:600;">{{ st.price }}</span>
+                      <button style="width:30px;height:30px;border:none;background:transparent;border-radius:8px;color:var(--color-red-600);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:var(--color-red-50);"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1; min-width:260px; background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:14px;">
+                <span style="font-family:'Lora',serif; font-size:16px; font-weight:600;">New showtime</span>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label style="font-size:11px; font-weight:500; color:var(--fg-2);">Movie</label><select style="height:36px; font-family:'DM Sans'; font-size:13px; border:1px solid var(--border-1); border-radius:10px; padding:0 10px; background:var(--surface-1); color:var(--fg-1); outline:none;"><option>Neon Harbor</option><option>Paper Lanterns</option><option>Dust & Ember</option></select></div>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label style="font-size:11px; font-weight:500; color:var(--fg-2);">Hall</label><select style="height:36px; font-family:'DM Sans'; font-size:13px; border:1px solid var(--border-1); border-radius:10px; padding:0 10px; background:var(--surface-1); color:var(--fg-1); outline:none;"><option>Hall 1 · Grand</option><option>Hall 2</option><option>Hall 3 · IMAX</option></select></div>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Date & time" type="datetime-local" hint-size="100%,58px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Ticket price" placeholder="$14" hint-size="100%,58px"></x-import>
+                <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" style="{{ fullBtn }}" hint-size="100%,34px">Add showtime</x-import>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAdminBookings }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:24px; display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                <h1 style="font-family:'Lora',serif; font-size:22px; font-weight:600; margin:0;">All bookings</h1>
+                <div style="display:flex; gap:4px; background:var(--surface-3); border-radius:10px; padding:3px;">
+                  <sc-for list="{{ filterTabs }}" as="f" hint-placeholder-count="4">
+                    <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; overflow:hidden;">
+                <div style="display:grid; grid-template-columns:1.3fr 1.5fr 1.6fr 0.8fr 1fr 0.7fr; gap:12px; padding:10px 16px; border-bottom:1px solid var(--border-1); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.06em; color:var(--fg-3); text-transform:uppercase;"><span>Movie</span><span>Customer</span><span>Hall / time</span><span>Seats</span><span>Status</span><span>Price</span></div>
+                <sc-for list="{{ allBookingsVM }}" as="b" hint-placeholder-count="6">
+                  <div style="display:grid; grid-template-columns:1.3fr 1.5fr 1.6fr 0.8fr 1fr 0.7fr; gap:12px; padding:13px 16px; border-bottom:1px solid var(--border-1); align-items:center; font-size:12.5px;">
+                    <span style="font-weight:600;">{{ b.movie }}</span>
+                    <div style="display:flex; flex-direction:column; gap:1px; min-width:0;"><span style="color:var(--fg-1);">{{ b.cust }}</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--fg-3); overflow:hidden; text-overflow:ellipsis;">{{ b.email }}</span></div>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fg-2);">{{ b.hall }} · {{ b.when }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; color:var(--fg-2);">{{ b.count }}</span>
+                    <span style="{{ b.pillStyle }}"><span style="{{ b.dotStyle }}"></span>{{ b.pillLabel }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-weight:600;">{{ b.price }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:26px; display:flex; flex-direction:column; gap:20px;">
+              <div style="display:flex; flex-direction:column; gap:8px;"><div class="cb-skel" style="width:200px; height:28px;"></div><div class="cb-skel" style="width:280px; height:14px;"></div></div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:18px;">
+                <sc-for list="{{ stats }}" as="t" hint-placeholder-count="5">
+                  <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:10px; display:flex; flex-direction:column; gap:10px;">
+                    <div class="cb-skel" style="width:100%; aspect-ratio:2/3; border-radius:9px;"></div>
+                    <div class="cb-skel" style="width:70%; height:14px;"></div>
+                    <div class="cb-skel" style="width:45%; height:11px;"></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isError }}" hint-placeholder-val="{{ true }}">
+            <div style="min-height:440px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; padding:40px;">
+              <div style="width:60px; height:60px; border-radius:9999px; background:var(--color-red-50); display:flex; align-items:center; justify-content:center; color:var(--color-red-600);"><i data-lucide="triangle-alert" style="width:28px;height:28px;"></i></div>
+              <div style="display:flex; flex-direction:column; gap:6px;"><h1 style="font-family:'Lora',serif; font-size:26px; font-weight:600; margin:0;">Something went wrong</h1><p style="margin:0; font-size:13.5px; color:var(--fg-2); max-width:42ch;">We couldn't load this page. This is usually temporary — try again in a moment.</p></div>
+              <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" on-click="{{ retry }}" hint-size="auto,34px">Try again</x-import>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isNotFound }}" hint-placeholder-val="{{ true }}">
+            <div style="min-height:440px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:40px;">
+              <span style="font-family:'Lora',serif; font-size:88px; font-weight:600; line-height:1; color:var(--color-teal-500);">404</span>
+              <div style="display:flex; flex-direction:column; gap:6px;"><h1 style="font-family:'Lora',serif; font-size:22px; font-weight:600; margin:0;">We couldn't find that page</h1><p style="margin:0; font-size:13.5px; color:var(--fg-2); max-width:42ch;">The showtime or page you're looking for may have been removed.</p></div>
+              <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" on-click="{{ goMoviesLink }}" hint-size="auto,34px">Back to movies</x-import>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isComponents }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:26px; display:flex; flex-direction:column; gap:26px;">
+              <div><h1 style="font-family:'Lora',serif; font-size:26px; font-weight:600; margin:0 0 4px;">Component library</h1><p style="margin:0; font-size:13px; color:var(--fg-2);">The building blocks applied across CineBook — from the ScribeRAG design system.</p></div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em; color:var(--fg-3); text-transform:uppercase;">Buttons</span>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" hint-size="auto,34px">Primary</x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="secondary" hint-size="auto,34px">Secondary</x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="ghost" hint-size="auto,34px">Ghost</x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="danger" hint-size="auto,34px">Danger</x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Button" variant="primary" disabled="{{ true }}" hint-size="auto,34px">Disabled</x-import>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em; color:var(--fg-3); text-transform:uppercase;">Inputs</span>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px;">
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Default" placeholder="you@example.com" hint-size="100%,58px"></x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="With error" value="not-an-email" error="Enter a valid email address." hint-size="100%,72px"></x-import>
+                  <x-import component-from-global-scope="ScribeRAGDesignSystem_832e09.Input" label="Disabled" placeholder="Locked" disabled="{{ true }}" hint-size="100%,58px"></x-import>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em; color:var(--fg-3); text-transform:uppercase;">Status badges</span>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:flex; gap:12px; flex-wrap:wrap;">
+                  <span style="{{ confPillStyle }}"><span style="{{ confDotStyle }}"></span>{{ confPillLabel }}</span>
+                  <span style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.04em; padding:3px 10px 3px 8px; border-radius:9999px; background:#FFF8EC; color:#B45309;"><span style="width:6px;height:6px;border-radius:9999px;background:#F59E0B; animation:cb-pulse 1.6s ease-in-out infinite;"></span>PENDING</span>
+                  <span style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.04em; padding:3px 10px 3px 8px; border-radius:9999px; background:#EEECEA; color:#7D786F;"><span style="width:6px;height:6px;border-radius:9999px;background:#A8A39C;"></span>CANCELLED</span>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em; color:var(--fg-3); text-transform:uppercase;">Seat states</span>
+                <div style="background:var(--surface-1); border:1px solid var(--border-1); border-radius:14px; padding:20px; display:flex; gap:20px; flex-wrap:wrap;">
+                  <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--fg-2);"><span style="width:22px;height:20px;border-radius:6px 6px 4px 4px;background:#fff;border:1px solid var(--color-neutral-300);"></span>Regular</div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--fg-2);"><span style="width:22px;height:20px;border-radius:6px 6px 4px 4px;background:#FFF8EC;border:1px solid #FCD34D;"></span>Premium</div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--fg-2);"><span style="width:22px;height:20px;border-radius:6px 6px 4px 4px;background:var(--color-teal-500);border:1px solid var(--color-teal-600);"></span>Selected</div>
+                  <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--fg-2);"><span style="width:22px;height:20px;border-radius:6px 6px 4px 4px;background:var(--color-neutral-100);border:1px solid var(--color-neutral-200);"></span>Taken</div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!--SCREENS-END-->
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800}}">
+class Component extends DCLogic {
+  state = { screen:'movies', role:'user', movieTab:'now', seats:{}, filter:'all', device:'desktop', empty:false, race:false, loginErr:false };
+
+  price = { regular:12, premium:18 };
+
+  movies = [
+    { id:'neon-harbor', title:'Neon Harbor', genre:'Sci-Fi', dur:'2h 14m', rating:'PG-13', status:'now', tint:'teal' },
+    { id:'quiet-fathom', title:'The Quiet Fathom', genre:'Drama', dur:'1h 58m', rating:'R', status:'now', tint:'neutral' },
+    { id:'paper-lanterns', title:'Paper Lanterns', genre:'Animation', dur:'1h 42m', rating:'PG', status:'now', tint:'amber' },
+    { id:'dust-ember', title:'Dust & Ember', genre:'Western', dur:'2h 06m', rating:'R', status:'now', tint:'red' },
+    { id:'midnight-carto', title:'Midnight Cartography', genre:'Thriller', dur:'2h 21m', rating:'PG-13', status:'now', tint:'violet' },
+    { id:'saltwater', title:'Saltwater Symphony', genre:'Musical', dur:'1h 49m', rating:'PG', status:'now', tint:'blue' },
+    { id:'last-analog', title:'The Last Analog', genre:'Comedy', dur:'1h 37m', rating:'PG-13', status:'now', tint:'teal' },
+    { id:'gravity-ledger', title:"Gravity's Ledger", genre:'Sci-Fi', dur:'2h 30m', rating:'PG-13', status:'now', tint:'neutral' },
+    { id:'aurora-divide', title:'Aurora Divide', genre:'Adventure', dur:'2h 12m', rating:'PG-13', status:'coming', tint:'blue' },
+    { id:'hollow-crown', title:'Hollow Crown Road', genre:'Drama', dur:'2h 04m', rating:'R', status:'coming', tint:'red' },
+    { id:'verdigris', title:'Verdigris', genre:'Horror', dur:'1h 51m', rating:'R', status:'coming', tint:'violet' },
+    { id:'tin-cathedral', title:'The Tin Cathedral', genre:'Fantasy', dur:'2h 26m', rating:'PG-13', status:'coming', tint:'amber' },
+  ];
+
+  tintMap = {
+    teal:    { bg:'#0F3D30', fg:'#EBF7F2', chip:'#1D9E75' },
+    neutral: { bg:'#2A2622', fg:'#F7F6F3', chip:'#5C5750' },
+    amber:   { bg:'#4A2E08', fg:'#FFF8EC', chip:'#B45309' },
+    red:     { bg:'#4A1616', fg:'#FEF2F2', chip:'#B91C1C' },
+    violet:  { bg:'#2E1A52', fg:'#F5F3FF', chip:'#6D28D9' },
+    blue:    { bg:'#16294A', fg:'#EFF6FF', chip:'#1D4ED8' },
+  };
+
+  bookings = [
+    { id:'b1', movie:'Neon Harbor', hall:'Hall 3 · IMAX', when:'Sat Jul 19 · 7:30 PM', seats:'E5, E6', status:'confirmed', price:36, cust:'Jordan Reeves', email:'jordan@example.com', upcoming:true },
+    { id:'b2', movie:'Paper Lanterns', hall:'Hall 1 · Grand', when:'Sun Jul 20 · 2:00 PM', seats:'C3', status:'pending', price:12, cust:'Jordan Reeves', email:'jordan@example.com', upcoming:true },
+    { id:'b3', movie:'The Quiet Fathom', hall:'Hall 2', when:'Wed Jul 09 · 9:15 PM', seats:'F7, F8', status:'confirmed', price:24, cust:'Jordan Reeves', email:'jordan@example.com', upcoming:false },
+    { id:'b4', movie:"Gravity's Ledger", hall:'Hall 3 · IMAX', when:'Mon Jul 07 · 6:45 PM', seats:'A1', status:'cancelled', price:18, cust:'Jordan Reeves', email:'jordan@example.com', upcoming:false },
+  ];
+
+  allBookings = [
+    { movie:'Neon Harbor', cust:'Jordan Reeves', email:'jordan@example.com', hall:'Hall 3 · IMAX', when:'Sat Jul 19 · 7:30 PM', count:2, status:'confirmed', price:36 },
+    { movie:'Paper Lanterns', cust:'Mara Ellison', email:'mara@example.com', hall:'Hall 1 · Grand', when:'Sun Jul 20 · 2:00 PM', count:1, status:'pending', price:12 },
+    { movie:'Dust & Ember', cust:'Theo Vance', email:'theo@example.com', hall:'Hall 2', when:'Fri Jul 18 · 8:00 PM', count:4, status:'confirmed', price:72 },
+    { movie:'The Quiet Fathom', cust:'Priya Nair', email:'priya@example.com', hall:'Hall 2', when:'Wed Jul 09 · 9:15 PM', count:2, status:'confirmed', price:24 },
+    { movie:"Gravity's Ledger", cust:'Sam Okafor', email:'sam@example.com', hall:'Hall 3 · IMAX', when:'Mon Jul 07 · 6:45 PM', count:1, status:'cancelled', price:18 },
+    { movie:'Midnight Cartography', cust:'Lena Ford', email:'lena@example.com', hall:'Hall 1 · Grand', when:'Thu Jul 17 · 5:30 PM', count:3, status:'pending', price:36 },
+  ];
+
+  premiumRows = ['E','F'];
+  taken = { A3:1, A4:1, C7:1, C8:1, D10:1, F6:1, F7:1, B11:1, G2:1, H9:1, H10:1, E1:1 };
+
+  go(screen){ this.setState({ screen, race:false, empty:false, device: (screen==='seats'||screen==='movies'||screen==='confirmation'||screen==='mybookings') ? this.state.device : 'desktop' }); this.icons(); }
+  setRole(role){ this.setState({ role }); }
+
+  icons(){ setTimeout(()=>{ if(window.lucide) window.lucide.createIcons(); }, 0); }
+  componentDidMount(){ this.icons(); }
+  componentDidUpdate(){ if(window.lucide) window.lucide.createIcons(); }
+
+  toggleSeat(id){ if(this.taken[id]) return; this.setState(s=>{ const seats={...s.seats}; if(seats[id]) delete seats[id]; else seats[id]=true; return { seats }; }); }
+
+  seatType(row){ return this.premiumRows.includes(row) ? 'premium' : 'regular'; }
+
+  buildSeatRows(){
+    const rows = ['A','B','C','D','E','F','G','H'];
+    return rows.map(row=>{
+      const type = this.seatType(row);
+      const seats = [];
+      for(let c=1;c<=12;c++){
+        const id = row + c;
+        const isTaken = !!this.taken[id];
+        const selected = !!this.state.seats[id];
+        const mono = "'JetBrains Mono', monospace";
+        let bg, border, color, cursor='pointer';
+        if(isTaken){ bg='var(--color-neutral-100)'; border='1px solid var(--color-neutral-200)'; color='var(--color-neutral-300)'; cursor='not-allowed'; }
+        else if(selected){ bg='var(--color-teal-500)'; border='1px solid var(--color-teal-600)'; color='#fff'; }
+        else if(type==='premium'){ bg='#FFF8EC'; border='1px solid #FCD34D'; color='#B45309'; }
+        else { bg='#fff'; border='1px solid var(--color-neutral-300)'; color='var(--color-neutral-500)'; }
+        const style = { width:'28px', height:'26px', flexShrink:0, marginLeft: c===7?'20px':'0', borderRadius:'7px 7px 5px 5px', background:bg, border, color, cursor, fontFamily:mono, fontSize:'8.5px', fontWeight:500, display:'inline-flex', alignItems:'center', justifyContent:'center', transition:'filter .1s ease', opacity:isTaken?0.7:1 };
+        seats.push({ id, num:''+c, style, onClick: isTaken ? null : ()=>this.toggleSeat(id) });
+      }
+      return { row, seats };
+    });
+  }
+
+  railBtn(active){
+    return `width:100%; display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:9px; border:none; cursor:pointer; font-family:'DM Sans'; font-size:13px; font-weight:500; text-align:left; margin-bottom:2px; background:${active?'var(--surface-brand-subtle)':'transparent'}; color:${active?'var(--color-teal-700)':'var(--fg-2)'};`;
+  }
+  roleBtn(active){
+    return `flex:1; padding:6px 4px; border-radius:7px; border:none; cursor:pointer; font-family:'DM Sans'; font-size:11px; font-weight:600; background:${active?'var(--surface-1)':'transparent'}; color:${active?'var(--color-teal-700)':'var(--fg-2)'}; box-shadow:${active?'var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.05))':'none'};`;
+  }
+  segBtn(active){
+    return `padding:6px 14px; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans'; font-size:12px; font-weight:600; background:${active?'var(--surface-1)':'transparent'}; color:${active?'var(--color-teal-700)':'var(--fg-2)'}; box-shadow:${active?'0 1px 2px rgba(0,0,0,0.05)':'none'};`;
+  }
+  toggleBtn(active){
+    return `padding:5px 11px; border-radius:8px; border:1px solid ${active?'var(--color-teal-500)':'var(--border-2)'}; cursor:pointer; white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.03em; background:${active?'var(--color-teal-50)':'var(--surface-1)'}; color:${active?'var(--color-teal-700)':'var(--fg-2)'};`;
+  }
+  navLink(active){
+    return `height:34px; padding:0 12px; border-radius:9px; border:none; cursor:pointer; font-family:'DM Sans'; font-size:13px; font-weight:500; background:${active?'var(--surface-brand-subtle)':'transparent'}; color:${active?'var(--color-teal-700)':'var(--fg-2)'};`;
+  }
+  adminTab(active){
+    return `display:flex; align-items:center; gap:6px; height:32px; padding:0 12px; border-radius:8px; border:none; cursor:pointer; white-space:nowrap; font-family:'DM Sans'; font-size:12.5px; font-weight:500; background:${active?'var(--surface-brand-subtle)':'transparent'}; color:${active?'var(--color-teal-700)':'var(--fg-2)'};`;
+  }
+
+  renderVals(){
+    const s = this.state;
+    const scr = s.screen;
+    const isAdminScreen = scr.startsWith('admin');
+    const showNavbar = !['loading','error','notfound','components'].includes(scr) && !isAdminScreen;
+    const isGuest = s.role==='guest';
+    const isLoggedIn = !isGuest;
+
+    const roles = ['guest','user','admin'].map(r=>({ label: r[0].toUpperCase()+r.slice(1), style:this.roleBtn(s.role===r), onClick:()=>this.setRole(r) }));
+
+    const nav = [
+      { label:'Auth', items:[ {id:'login',label:'Login',icon:'log-in'}, {id:'register',label:'Register',icon:'user-plus'} ] },
+      { label:'Browse', items:[ {id:'movies',label:'Movie listing',icon:'clapperboard'}, {id:'detail',label:'Movie detail',icon:'film'}, {id:'seats',label:'Seat selection',icon:'armchair'} ] },
+      { label:'Booking', items:[ {id:'confirmation',label:'Confirmation',icon:'ticket-check'}, {id:'mybookings',label:'My bookings',icon:'ticket'} ] },
+      { label:'Admin', items:[ {id:'admin',label:'Overview',icon:'layout-dashboard'}, {id:'admin-movies',label:'Movies',icon:'film'}, {id:'admin-halls',label:'Cinema halls',icon:'grid-3x3'}, {id:'admin-showtimes',label:'Showtimes',icon:'calendar-clock'}, {id:'admin-bookings',label:'Bookings',icon:'receipt'} ] },
+      { label:'System', items:[ {id:'loading',label:'Loading',icon:'loader'}, {id:'error',label:'Error',icon:'triangle-alert'}, {id:'notfound',label:'Not found',icon:'file-question'}, {id:'components',label:'Components',icon:'component'} ] },
+    ];
+    const navGroups = nav.map(g=>({ label:g.label, items:g.items.map(it=>({ label:it.label, icon:it.icon, style:this.railBtn(scr===it.id), onClick:()=>this.go(it.id) })) }));
+
+    const titles = {
+      login:['Login','Guest access · email + password'], register:['Register','New account · per-field validation'],
+      movies:['Movie listing','Now Showing / Coming Soon tabs'], detail:['Movie detail','Synopsis + showtimes by date'],
+      seats:['Seat selection','Interactive seat map · regular + premium'], confirmation:['Booking confirmation','Ticket summary + cancel'],
+      mybookings:['My bookings','User booking history'], admin:['Admin overview','System stat tiles'],
+      'admin-movies':['Admin · Movies','Catalog management'], 'admin-halls':['Admin · Cinema halls','Halls + seat grids'],
+      'admin-showtimes':['Admin · Showtimes','Schedule management'], 'admin-bookings':['Admin · Bookings','All bookings, filterable'],
+      loading:['Loading state','Skeleton placeholders'], error:['Error page','Something went wrong + retry'],
+      notfound:['404','Not found'], components:['Component library','Buttons · inputs · badges · seats · cards'],
+    };
+    const [screenTitle, screenSub] = titles[scr] || ['CineBook',''];
+
+    // demo toggles
+    let demoToggles = null;
+    if(scr==='movies') demoToggles = [{ label: s.empty?'Show catalog':'Preview empty state', style:this.toggleBtn(s.empty), onClick:()=>this.setState(x=>({empty:!x.empty})) }];
+    if(scr==='seats') demoToggles = [{ label: s.race?'Clear race error':'Preview race error', style:this.toggleBtn(s.race), onClick:()=>this.setState(x=>({race:!x.race})) }];
+    if(scr==='mybookings') demoToggles = [{ label: s.empty?'Show bookings':'Preview empty state', style:this.toggleBtn(s.empty), onClick:()=>this.setState(x=>({empty:!x.empty})) }];
+
+    const deviceToggle = ['movies','seats','confirmation','mybookings'].includes(scr);
+    const isMobile = deviceToggle && s.device==='mobile';
+
+    const stageStyle = 'flex:1; padding:'+(isMobile?'28px 16px':'26px')+'; display:flex; justify-content:center;';
+    const frameStyle = isMobile
+      ? 'width:390px; flex-shrink:0; background:var(--surface-1); border:1px solid var(--border-2); border-radius:26px; overflow:hidden; box-shadow:0 12px 40px rgba(26,23,20,0.12); min-height:720px;'
+      : 'width:100%; max-width:1120px; background:var(--surface-1); border:1px solid var(--border-1); border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(26,23,20,0.04);';
+    const bodyStyle = 'background:var(--surface-2);' + (isMobile?' min-height:640px;':' min-height:560px;');
+    const navbarStyle = 'display:flex; align-items:center; justify-content:space-between; gap:12px; padding:'+(isMobile?'12px 14px':'12px 22px')+'; background:var(--surface-1); border-bottom:1px solid var(--border-1); flex-wrap:wrap;';
+
+    // movies
+    const list = this.movies.filter(m=>m.status===s.movieTab);
+    const moviesEmpty = scr==='movies' && s.empty;
+    const moviesShown = scr==='movies' && !s.empty;
+    const visibleMovies = list.map(m=>{
+      const t = this.tintMap[m.tint];
+      return { title:m.title, genre:m.genre, rating:m.rating, meta:m.genre+' · '+m.dur, onClick:()=>this.go('detail'),
+        posterStyle:`aspect-ratio:2/3; border-radius:9px; background:${t.bg}; color:${t.fg}; padding:14px; display:flex; flex-direction:column; justify-content:space-between; gap:8px;`,
+        ratingChip:`align-self:flex-start; font-family:'JetBrains Mono',monospace; font-size:9px; padding:2px 7px; border-radius:9999px; background:rgba(255,255,255,0.16); letter-spacing:.05em;` };
+    });
+
+    // showtimes for detail
+    const mkTime=(time,hall)=>({ time, hall, onClick:()=>this.go('seats') });
+    const showtimeDays = [
+      { label:'Today · Mon Jul 14', times:[mkTime('1:30 PM','Hall 1 · Grand'),mkTime('4:15 PM','Hall 2'),mkTime('7:30 PM','Hall 3 · IMAX'),mkTime('10:00 PM','Hall 2')] },
+      { label:'Tomorrow · Tue Jul 15', times:[mkTime('2:00 PM','Hall 1 · Grand'),mkTime('6:45 PM','Hall 3 · IMAX'),mkTime('9:15 PM','Hall 2')] },
+    ];
+
+    // seat data
+    const seatRows = this.buildSeatRows();
+    const selIds = Object.keys(s.seats);
+    const selSorted = selIds.sort((a,b)=> a[0]===b[0] ? (+a.slice(1))-(+b.slice(1)) : a.localeCompare(b));
+    let total=0; selSorted.forEach(id=> total += this.price[this.seatType(id[0])]);
+    const seatCount = selSorted.length;
+    const canBook = seatCount>0 && !isGuest;
+
+    const pill=(st)=>{ const m={confirmed:{bg:'#E7F6EC',fg:'#15803D',dot:'#22C55E',t:'CONFIRMED'},pending:{bg:'#FFF8EC',fg:'#B45309',dot:'#F59E0B',t:'PENDING'},cancelled:{bg:'#EEECEA',fg:'#7D786F',dot:'#A8A39C',t:'CANCELLED'}}[st]; return { label:m.t, style:`display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.04em; padding:3px 10px 3px 8px; border-radius:9999px; background:${m.bg}; color:${m.fg}; width:fit-content;`, dotStyle:`width:6px; height:6px; border-radius:9999px; background:${m.dot};`+(st==='pending'?' animation:cb-pulse 1.6s ease-in-out infinite;':'') }; };
+    const movieTint=(name)=>{ const mv=this.movies.find(x=>x.title===name); return this.tintMap[mv?mv.tint:'neutral']; };
+    const chip=(name)=>{ const t=movieTint(name); return `width:44px;height:60px;flex-shrink:0;border-radius:7px;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:18px;font-weight:600;`; };
+
+    const myBookings = this.bookings.map(b=>{ const p=pill(b.status); return { movie:b.movie, hall:b.hall, when:b.when, seats:b.seats, price:'$'+b.price, pillLabel:p.label, pillStyle:p.style, dotStyle:p.dotStyle, canCancel:b.upcoming&&b.status!=='cancelled', chipStyle:chip(b.movie), initial:b.movie[0] }; });
+
+    const fb = this.allBookings.filter(b=> s.filter==='all' || b.status===s.filter);
+    const allBookingsVM = fb.map(b=>{ const p=pill(b.status); return { movie:b.movie, cust:b.cust, email:b.email, hall:b.hall, when:b.when, count:b.count+(b.count>1?' seats':' seat'), price:'$'+b.price, pillLabel:p.label, pillStyle:p.style, dotStyle:p.dotStyle }; });
+    const filterTabs = ['all','pending','confirmed','cancelled'].map(f=>({ label: f==='all'?'All':f[0].toUpperCase()+f.slice(1), style:this.segBtn(s.filter===f), onClick:()=>this.setState({filter:f}) }));
+
+    const statusChip=(now)=>`font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.04em; padding:2px 8px; border-radius:9999px; background:${now?'var(--color-teal-50)':'var(--color-neutral-100)'}; color:${now?'var(--color-teal-700)':'var(--fg-2)'};`;
+    const adminMoviesVM = this.movies.map(m=>({ title:m.title, genre:m.genre, dur:m.dur, rating:m.rating, statusLabel:m.status==='now'?'Now Showing':'Coming Soon', statusStyle:statusChip(m.status==='now'), chipStyle:chip(m.title), initial:m.title[0] }));
+
+    const halls = [ {name:'Hall 1 · Grand', dims:'12 × 18', seats:'216', shows:'14'}, {name:'Hall 2', dims:'8 × 12', seats:'96', shows:'20'}, {name:'Hall 3 · IMAX', dims:'14 × 22', seats:'308', shows:'14'} ];
+    const showtimesVM = [
+      {movie:'Neon Harbor', hall:'Hall 3 · IMAX', when:'Mon Jul 14 · 7:30 PM', price:'$18'},
+      {movie:'Paper Lanterns', hall:'Hall 1 · Grand', when:'Mon Jul 14 · 1:30 PM', price:'$12'},
+      {movie:'Dust & Ember', hall:'Hall 2', when:'Fri Jul 18 · 8:00 PM', price:'$14'},
+      {movie:'The Quiet Fathom', hall:'Hall 2', when:'Wed Jul 16 · 9:15 PM', price:'$14'},
+      {movie:"Gravity's Ledger", hall:'Hall 3 · IMAX', when:'Sat Jul 19 · 6:45 PM', price:'$18'},
+    ];
+    const stats = [ {v:'12',l:'Total movies',i:'film'}, {v:'3',l:'Cinema halls',i:'grid-3x3'}, {v:'48',l:'Showtimes',i:'calendar-clock'}, {v:'37',l:'Bookings today',i:'receipt'}, {v:'214',l:'Active bookings',i:'ticket'} ];
+    const confPill = pill('confirmed');
+
+    // account link
+    const accountLabel = s.role==='admin' ? 'Admin' : 'My bookings';
+    const accountIcon = s.role==='admin' ? 'shield' : 'ticket';
+
+    const userName = s.role==='admin' ? 'Alex Mercer' : 'Jordan Reeves';
+    const userInitials = s.role==='admin' ? 'AM' : 'JR';
+    const avatarColor = s.role==='admin' ? '#6D28D9' : '#1D9E75';
+
+    const adminNav = [
+      {id:'admin',label:'Overview',icon:'layout-dashboard'},{id:'admin-movies',label:'Movies',icon:'film'},{id:'admin-halls',label:'Halls',icon:'grid-3x3'},{id:'admin-showtimes',label:'Showtimes',icon:'calendar-clock'},{id:'admin-bookings',label:'Bookings',icon:'receipt'}
+    ].map(a=>({ label:a.label, icon:a.icon, style:this.adminTab(scr===a.id), onClick:()=>this.go(a.id) }));
+
+    return {
+      // meta nav
+      roles, navGroups, screenTitle, screenSub, demoToggles, deviceToggle,
+      setDesktop:()=>this.setState({device:'desktop'}), setMobile:()=>this.setState({device:'mobile'}),
+      deskStyle:this.segBtn(!isMobile), mobStyle:this.segBtn(isMobile),
+      stageStyle, frameStyle, bodyStyle, navbarStyle,
+      // navbar
+      showNavbar, isAdminScreen, isGuest, isLoggedIn, adminNav,
+      goMovies:()=>this.go('movies'), goLogin:()=>this.go('login'), goRegister:()=>this.go('register'),
+      goAccount:()=>this.go(s.role==='admin'?'admin':'mybookings'),
+      navMoviesStyle:this.navLink(scr==='movies'||scr==='detail'||scr==='seats'),
+      accountLabel, accountIcon, userName, userInitials, avatarColor,
+      // screen flags
+      isLogin:scr==='login', isRegister:scr==='register', isMovies:scr==='movies', isDetail:scr==='detail',
+      // login
+      loginErr:s.loginErr, doLogin:()=>this.go('movies'), toggleLoginErr:()=>this.setState(x=>({loginErr:!x.loginErr})),
+      fullBtn:{ width:'100%' },
+      // movies
+      tabNow:()=>this.setState({movieTab:'now',empty:false}), tabComing:()=>this.setState({movieTab:'coming',empty:false}),
+      tabNowStyle:this.segBtn(s.movieTab==='now'), tabComingStyle:this.segBtn(s.movieTab==='coming'),
+      moviesEmpty, moviesShown, visibleMovies,
+      // detail
+      showtimeDays,
+      detailPoster:`width:220px; flex-shrink:0; aspect-ratio:2/3; border-radius:14px; background:${this.tintMap.teal.bg}; color:${this.tintMap.teal.fg}; padding:22px; display:flex; flex-direction:column; justify-content:space-between;`,
+      metaPill:`font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 9px; border-radius:9999px; background:var(--surface-3); color:var(--fg-2);`,
+      // screen flags
+      isSeats:scr==='seats', isConfirmation:scr==='confirmation', isMyBookings:scr==='mybookings',
+      isAdminOverview:scr==='admin', isAdminMovies:scr==='admin-movies', isAdminHalls:scr==='admin-halls',
+      isAdminShowtimes:scr==='admin-showtimes', isAdminBookings:scr==='admin-bookings',
+      isLoading:scr==='loading', isError:scr==='error', isNotFound:scr==='notfound', isComponents:scr==='components',
+      // seats
+      seatRows, seatCount, seatTotal:'$'+total, selectedLabels:selSorted.join(', ')||'—',
+      canBook, cannotBook:!canBook, goConfirm:()=>this.go('confirmation'), race:s.race, isMobileSeats:isMobile,
+      // bookings
+      myBookings, bookingsEmpty:s.empty, bookingsShown:!s.empty, goMoviesLink:()=>this.go('movies'),
+      allBookingsVM, filterTabs,
+      // confirmation
+      confPillLabel:confPill.label, confPillStyle:confPill.style, confDotStyle:confPill.dotStyle,
+      // admin
+      adminMoviesVM, halls, showtimesVM, stats,
+      // states
+      retry:()=>this.go('movies'),
+    };
+  }
+}
+</script>
+</body>
+</html>

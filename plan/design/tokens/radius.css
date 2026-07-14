@@ -1,0 +1,32 @@
+/* ScribeRAG Radius Tokens
+ * ──────────────────────────────────────────────
+ * Generous rounding throughout (12–14px for cards),
+ * full radius for pills and badges. Clean and modern.
+ */
+
+:root {
+  /* ── Scale ────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:  10px;
+  --radius-lg:  12px;
+  --radius-xl:  14px;
+  --radius-2xl: 18px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Semantic ─────────────────────────────────── */
+  --radius-badge:   var(--radius-full);
+  --radius-pill:    var(--radius-full);
+  --radius-chip:    var(--radius-sm);
+  --radius-button:  var(--radius-md);
+  --radius-input:   var(--radius-md);
+  --radius-card:    var(--radius-xl);
+  --radius-panel:   var(--radius-lg);
+  --radius-modal:   var(--radius-2xl);
+  --radius-toast:   var(--radius-lg);
+  --radius-avatar:  var(--radius-full);
+  --radius-logo:    var(--radius-lg);
+  --radius-tag:     var(--radius-xs);
+}
