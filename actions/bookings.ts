@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 
 export type BookingFormState = {
   error?: string;
+  clearSelection?: boolean;
 };
 
 export async function createBooking(
@@ -68,7 +69,8 @@ export async function createBooking(
     ) {
       return {
         error:
-          "One or more selected seats were just booked by someone else. Please choose different seats.",
+          "One or more of your selected seats were just booked by someone else. They've been cleared — pick again.",
+        clearSelection: true,
       };
     }
     throw error;

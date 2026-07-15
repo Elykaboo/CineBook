@@ -32,10 +32,10 @@ export async function createMovie(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const movie = await prisma.movie.create({ data: parsed.data });
+  await prisma.movie.create({ data: parsed.data });
   revalidatePath("/admin/movies");
   revalidatePath("/movies");
-  redirect(`/admin/movies?created=${movie.id}`);
+  redirect("/admin/movies");
 }
 
 export async function updateMovie(

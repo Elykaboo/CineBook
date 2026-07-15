@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { SeatMap } from "./seat-map";
+import { seatLabel } from "@/lib/seat-label";
+import { BookingSeatSelector } from "./booking-seat-selector";
 
 export default async function ShowtimePage({
   params,
@@ -38,15 +39,16 @@ export default async function ShowtimePage({
     id: seat.id,
     row: seat.row,
     column: seat.column,
+    label: seatLabel(seat.row, seat.column),
     type: seat.type,
     taken: bookedSeatIds.has(seat.id),
   }));
 
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <div className="flex flex-col gap-6 p-8 pb-32">
       <div>
-        <h1 className="text-2xl font-semibold">{showtime.movie.title}</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="font-serif text-2xl text-fg-1">{showtime.movie.title}</h1>
+        <p className="font-mono text-xs text-fg-2">
           {showtime.hall.name} ·{" "}
           {showtime.startTime.toLocaleString(undefined, {
             weekday: "long",
@@ -58,9 +60,10 @@ export default async function ShowtimePage({
         </p>
       </div>
 
-      <SeatMap
+      <BookingSeatSelector
         showtimeId={showtime.id}
         seats={seats}
+        columns={showtime.hall.columns}
         price={showtime.price.toNumber()}
         isLoggedIn={!!session?.user}
       />

@@ -2,7 +2,11 @@
 
 import { useActionState } from "react";
 import type { AdminFormState } from "@/actions/admin";
-import { FormError, FieldError } from "@/components/form-error";
+import { FormError } from "@/components/form-error";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const initialState: AdminFormState = {};
 
@@ -31,108 +35,77 @@ export function MovieForm({
   const [state, formAction, pending] = useActionState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 max-w-lg">
-      <Field
-        name="title"
+    <form action={formAction} className="flex flex-col gap-4">
+      <Input
         label="Title"
+        name="title"
         defaultValue={defaultValues?.title}
-        errors={state.fieldErrors?.title}
+        required
+        error={state.fieldErrors?.title?.[0]}
       />
-      <div className="flex flex-col gap-1">
-        <label htmlFor="description" className="text-sm font-medium">
-          Description
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          defaultValue={defaultValues?.description}
+      <Textarea
+        label="Description"
+        name="description"
+        defaultValue={defaultValues?.description}
+        required
+        rows={4}
+        error={state.fieldErrors?.description?.[0]}
+      />
+      <div className="flex gap-3">
+        <Input
+          label="Genre"
+          name="genre"
+          defaultValue={defaultValues?.genre}
           required
-          rows={4}
-          className="border rounded px-3 py-2"
+          className="flex-1"
+          error={state.fieldErrors?.genre?.[0]}
         />
-        <FieldError messages={state.fieldErrors?.description} />
+        <Input
+          label="Duration (minutes)"
+          name="durationMinutes"
+          type="number"
+          defaultValue={defaultValues?.durationMinutes?.toString()}
+          required
+          className="w-36"
+          error={state.fieldErrors?.durationMinutes?.[0]}
+        />
       </div>
-      <Field
-        name="genre"
-        label="Genre"
-        defaultValue={defaultValues?.genre}
-        errors={state.fieldErrors?.genre}
-      />
-      <Field
-        name="durationMinutes"
-        label="Duration (minutes)"
-        type="number"
-        defaultValue={defaultValues?.durationMinutes?.toString()}
-        errors={state.fieldErrors?.durationMinutes}
-      />
-      <Field
-        name="posterUrl"
+      <Input
         label="Poster URL"
+        name="posterUrl"
         defaultValue={defaultValues?.posterUrl}
-        errors={state.fieldErrors?.posterUrl}
+        required
+        error={state.fieldErrors?.posterUrl?.[0]}
       />
-      <Field
-        name="rating"
-        label="Rating"
-        defaultValue={defaultValues?.rating}
-        errors={state.fieldErrors?.rating}
-      />
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="status" className="text-sm font-medium">
-          Status
-        </label>
-        <select
-          id="status"
+      <div className="flex gap-3">
+        <Select
+          label="Rating"
+          name="rating"
+          defaultValue={defaultValues?.rating ?? "PG"}
+          className="flex-1"
+          error={state.fieldErrors?.rating?.[0]}
+        >
+          <option value="G">G</option>
+          <option value="PG">PG</option>
+          <option value="PG-13">PG-13</option>
+          <option value="R">R</option>
+        </Select>
+        <Select
+          label="Status"
           name="status"
           defaultValue={defaultValues?.status ?? "COMING_SOON"}
-          className="border rounded px-3 py-2"
+          className="flex-1"
         >
-          <option value="NOW_SHOWING">Now Showing</option>
-          <option value="COMING_SOON">Coming Soon</option>
-        </select>
+          <option value="NOW_SHOWING">Now showing</option>
+          <option value="COMING_SOON">Coming soon</option>
+        </Select>
       </div>
 
       <FormError message={state.error} />
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-black text-white rounded px-4 py-2 text-sm disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "Saving..." : submitLabel}
-      </button>
+      </Button>
     </form>
-  );
-}
-
-function Field({
-  name,
-  label,
-  type = "text",
-  defaultValue,
-  errors,
-}: {
-  name: string;
-  label: string;
-  type?: string;
-  defaultValue?: string;
-  errors?: string[];
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium">
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        required
-        className="border rounded px-3 py-2"
-      />
-      <FieldError messages={errors} />
-    </div>
   );
 }

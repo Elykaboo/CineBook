@@ -1,3 +1,5 @@
+import { Film, Grid3x3, CalendarClock, TicketCheck, Receipt } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage() {
@@ -17,22 +19,30 @@ export default async function AdminDashboardPage() {
       prisma.booking.count({ where: { status: { not: "CANCELLED" } } }),
     ]);
 
-  const stats = [
-    { label: "Movies", value: movieCount },
-    { label: "Cinema Halls", value: hallCount },
-    { label: "Showtimes", value: showtimeCount },
-    { label: "Bookings Today", value: bookingsToday },
-    { label: "Active Bookings", value: totalBookings },
+  const stats: { label: string; value: number; icon: LucideIcon }[] = [
+    { label: "Total movies", value: movieCount, icon: Film },
+    { label: "Cinema halls", value: hallCount, icon: Grid3x3 },
+    { label: "Showtimes", value: showtimeCount, icon: CalendarClock },
+    { label: "Bookings today", value: bookingsToday, icon: TicketCheck },
+    { label: "Active bookings", value: totalBookings, icon: Receipt },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Admin Overview</h1>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <h1 className="mb-6 font-serif text-2xl text-fg-1">Admin overview</h1>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="border rounded p-4">
-            <p className="text-2xl font-semibold">{stat.value}</p>
-            <p className="text-sm text-gray-500">{stat.label}</p>
+          <div
+            key={stat.label}
+            className="flex flex-col gap-3 rounded-panel border border-border-1 bg-surface-1 p-4"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-chip bg-surface-brand-subtle">
+              <stat.icon className="h-4 w-4 text-teal-700" strokeWidth={1.75} />
+            </span>
+            <div>
+              <p className="font-serif text-2xl text-fg-1">{stat.value}</p>
+              <p className="text-sm text-fg-2">{stat.label}</p>
+            </div>
           </div>
         ))}
       </div>

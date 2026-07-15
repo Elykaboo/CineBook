@@ -1,7 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { PosterTile } from "@/components/ui/poster-tile";
+import { Badge } from "@/components/ui/badge";
 
 function groupByDate<T extends { startTime: Date }>(items: T[]) {
   const groups = new Map<string, T[]>();
@@ -41,38 +42,40 @@ export default async function MovieDetailPage({
   const showtimesByDate = groupByDate(movie.showtimes);
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 p-8">
-      <div className="relative aspect-2/3 w-full max-w-xs shrink-0 overflow-hidden rounded bg-gray-100">
-        <Image
-          src={movie.posterUrl}
-          alt={movie.title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 320px"
+    <div className="flex flex-col gap-8 p-8 md:flex-row">
+      <div className="w-full shrink-0 md:w-55">
+        <PosterTile
+          title={movie.title}
+          genre={movie.genre}
+          rating={movie.rating}
         />
       </div>
 
       <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">{movie.title}</h1>
-          <p className="text-sm text-gray-500">
-            {movie.genre} · {movie.durationMinutes} min · {movie.rating}
-          </p>
+        <div className="flex flex-col gap-2">
+          <h1 className="font-serif text-3xl text-fg-1">{movie.title}</h1>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="neutral">{movie.genre}</Badge>
+            <Badge variant="neutral">{movie.durationMinutes} min</Badge>
+            <Badge variant="neutral">{movie.rating}</Badge>
+          </div>
         </div>
 
-        <p className="max-w-2xl">{movie.description}</p>
+        <p className="max-w-[60ch] text-sm leading-relaxed text-fg-2">
+          {movie.description}
+        </p>
 
         <div>
-          <h2 className="font-medium mb-2">Showtimes</h2>
+          <h2 className="mb-2 font-semibold text-fg-1">Showtimes</h2>
           {showtimesByDate.size === 0 ? (
-            <p className="text-gray-500 text-sm">
+            <p className="text-sm text-fg-2">
               No upcoming showtimes scheduled.
             </p>
           ) : (
             <div className="flex flex-col gap-4">
               {[...showtimesByDate.entries()].map(([date, showtimes]) => (
                 <div key={date}>
-                  <h3 className="text-sm font-medium text-gray-600 mb-1">
+                  <h3 className="mb-1.5 font-mono text-xs uppercase tracking-wide text-fg-3">
                     {date}
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -80,13 +83,13 @@ export default async function MovieDetailPage({
                       <Link
                         key={showtime.id}
                         href={`/showtimes/${showtime.id}`}
-                        className="border rounded px-3 py-2 text-sm hover:bg-gray-50"
+                        className="rounded-button border border-border-1 px-3 py-2 text-sm font-semibold text-fg-1 transition-colors duration-150 hover:border-teal-500 hover:bg-surface-brand-subtle"
                       >
                         {showtime.startTime.toLocaleTimeString(undefined, {
                           hour: "numeric",
                           minute: "2-digit",
                         })}
-                        <span className="text-gray-500">
+                        <span className="font-normal text-fg-2">
                           {" "}
                           · {showtime.hall.name}
                         </span>

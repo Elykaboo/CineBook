@@ -53,3 +53,26 @@ export function PosterTile({
     </div>
   );
 }
+
+/** Small square poster swatch — same tint logic as PosterTile, for list rows/ticket cards. */
+export function PosterChip({
+  title,
+  className,
+}: {
+  title: string;
+  className?: string;
+}) {
+  const tint = tintForTitle(title);
+
+  return (
+    <div
+      className={cn(
+        "flex h-12 w-12 shrink-0 items-center justify-center rounded-chip font-serif text-lg",
+        tintClasses[tint],
+        className
+      )}
+    >
+      {title.charAt(0).toUpperCase()}
+    </div>
+  );
+}

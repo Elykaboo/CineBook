@@ -153,45 +153,48 @@ foundation must go first, everything else can happen in any order after that.
 - [x] Login (`app/(auth)/login`) — centered 400px card (`max-w-100`), Lora "Welcome back", inline red error banner with `circle-alert` icon and exact handoff copy ("That email and password don't match. Check them and try again.") — verified live: page renders correctly, a real login still succeeds and establishes the correct session after the copy change
 - [x] Register (`app/(auth)/register`) — same card pattern, per-field validation copy from the handoff (email format message, password helper text) wired into `lib/validations/auth.ts` zod messages — verified live
 
-### Design Phase D — Movie Listing (`app/(public)/movies`)
+### Design Phase D — Movie Listing (`app/(public)/movies`) — ✅ Complete
 
-- [ ] "What's on" header, Now showing / Coming soon segmented tabs
-- [ ] Poster grid using `PosterTile`
-- [ ] Empty state per tab (film icon, copy from handoff)
+- [x] "What's on" header (Lora), Now showing / Coming soon segmented pill tabs
+- [x] Poster grid using `PosterTile` — replaces the earlier `next/image` photo posters with typographic tiles per the DS ("no photography"); real `posterUrl` data is now unused on this page but still exists on the model for a later swap if desired
+- [x] Empty state per tab (film icon, copy from handoff) — verified live: both tabs render their correct real seeded titles ("Iron Tide"/"Midnight Heist" on Now Showing, "Echoes of Tomorrow" etc. on Coming Soon), poster tint and pill-radius utilities confirmed in compiled CSS
 
-### Design Phase E — Movie Detail (`app/(public)/movies/[id]`)
+### Design Phase E — Movie Detail (`app/(public)/movies/[id]`) — ✅ Complete
 
-- [ ] Two-column layout: poster tile + title/meta/description
-- [ ] Showtimes grouped by date, outlined time+hall buttons with teal hover state
-- [ ] Empty state ("No upcoming showtimes scheduled")
+- [x] Two-column layout: `PosterTile` (220px) + Lora title/meta badges/description
+- [x] Showtimes grouped by date (mono eyebrow), outlined time+hall buttons with teal border/bg hover state
+- [x] Empty state ("No upcoming showtimes scheduled") — verified live with real seeded data (Iron Tide, dates grouped correctly), hover and width utilities confirmed in compiled CSS
 
-### Design Phase F — Seat Selection (`app/(public)/showtimes/[id]`) — most complex, budget extra time
+### Design Phase F — Seat Selection (`app/(public)/showtimes/[id]`) — ✅ Complete
 
-- [ ] Header (movie title + hall/date/time in mono)
-- [ ] `SeatMap` integration with legend (Regular $12 / Premium $18 / Selected / Taken)
-- [ ] Sticky summary bar (seat count, labels, total, "Book selected seats")
-- [ ] Guest state (teal prompt card instead of book button)
-- [ ] Race-condition error banner (seat taken mid-selection — action already returns this, just needs styling)
-- [ ] Mobile horizontal scroll for the seat grid
+- [x] Header (Lora movie title + hall/date/time in mono)
+- [x] `SeatMap` integration with legend (Regular / Premium / Selected / Taken — no `$12`/`$18` numbers since the schema has one price per showtime, not per seat type; showing fake differentiated prices would misrepresent real data)
+- [x] Sticky summary bar (seat count, mono seat labels, Lora total, "Book selected seats", fixed to viewport bottom)
+- [x] Guest state (teal prompt card instead of book button) — verified live
+- [x] Race-condition error banner — exact handoff copy, and now actually clears the selection on that specific error (via a new `clearSelection` flag on `BookingFormState`), matching "They've been cleared — pick again"
+- [x] Mobile horizontal scroll for the seat grid (built into the shared `SeatMap` component)
+- [x] **Consistency fix**: reconciled seat-label format across the whole app. The Phase B `SeatMap` component uses the handoff's row-letter/seat-number convention ("A1"), but the already-built booking confirmation/list pages used a different "1A" (number+letter) format from initial functional scaffolding. Added `lib/seat-label.ts` as the single source of truth and updated both booking pages — verified live end-to-end: the same physical seat now renders as "A3" identically on the seat map, the booking confirmation page, and the bookings list
 
-### Design Phase G — Booking Confirmation (`app/(dashboard)/bookings/[id]`)
+### Design Phase G — Booking Confirmation (`app/(dashboard)/bookings/[id]`) — ✅ Complete
 
-- [ ] Centered 480px success layout, teal check circle
-- [ ] Ticket card: poster chip, movie, `StatusPill`, Hall/Showtime/Seats/Total grid, dashed perforation, mono confirmation code
-- [ ] "Browse more movies" + conditional "Cancel booking" (danger, upcoming only)
+- [x] Centered 480px (`max-w-120`) success layout, teal check circle, "A confirmation has been sent to {email}" using the real session email
+- [x] Ticket card: new `PosterChip` component (small tinted swatch, same hash-derived tint as `PosterTile`), movie title, `StatusPill`, Hall/Showtime/Seats/Total paid grid, dashed perforation, mono confirmation code (`CB-` + booking ID suffix) + decorative barcode strip
+- [x] "Browse more movies" + conditional "Cancel booking" (danger, upcoming only) — verified live: all fields render correct real data (Hall 1, seat "A3", ₱275.00), `rounded-modal` and dashed-border utilities confirmed in compiled CSS
 
-### Design Phase H — My Bookings (`app/(dashboard)/bookings`)
+### Design Phase H — My Bookings (`app/(dashboard)/bookings`) — ✅ Complete
 
-- [ ] Booking card list (poster chip, mono hall/time, `StatusPill`, price, conditional Cancel)
-- [ ] Empty state (ticket icon, copy from handoff, "Browse movies" CTA)
+- [x] Booking card list (`PosterChip`, mono hall/time, `StatusPill`, Lora price, ghost-sm "Cancel" conditional on upcoming+not-cancelled)
+- [x] Empty state (ticket icon, copy from handoff, "Browse movies" CTA) — verified live: all three statuses (CONFIRMED, PENDING would follow the same path, CANCELLED) confirmed rendering correctly with real DB data, including creating a fresh CONFIRMED booking specifically to verify that status/Cancel-button path (the existing test bookings had all drifted to CANCELLED from earlier manual testing)
 
-### Design Phase I — Admin Overview (`app/(dashboard)/admin`)
+### Design Phase I — Admin Overview (`app/(dashboard)/admin`) — ✅ Complete
 
-- [ ] Stat tiles (teal-50 icon chip + Lora number + label) for movies/halls/showtimes/bookings-today/active-bookings
+- [x] Stat tiles (teal-50 icon chip + Lora number + label) for movies/halls/showtimes/bookings-today/active-bookings — auto-fill grid, each with a distinct Lucide icon (Film/Grid3x3/CalendarClock/TicketCheck/Receipt). Verified live against the actual database (including a moment where "Active bookings" showed 0 — double-checked the raw DB and confirmed that was correct real data, not a query bug)
 
-### Design Phase J — Admin Movies (`app/(dashboard)/admin/movies`)
+### Design Phase J — Admin Movies (`app/(dashboard)/admin/movies`) — ✅ Complete
 
-- [ ] Two-column: list rows (poster chip, mono meta, status chip, edit/delete icon buttons) + create/edit form
+- [x] Two-column: list rows (`PosterChip`, mono meta, status badge, pencil/trash icon buttons) + inline "New movie" form on the same page
+- [x] **Restructure**: the handoff puts the create form directly on the list page (matching the pattern already used for halls), not on a separate route — removed the now-redundant `/admin/movies/new` route entirely rather than leaving two ways to create a movie. Edit stays on its own route (`/admin/movies/[id]/edit`, restyled) since the handoff doesn't specify inline editing and it isn't worth the added client-state complexity
+- [x] Verified live: list/form render correctly, old `/new` route now correctly 404s, and directly re-verified create/update/delete against the database after the restructuring (count returns to baseline after create+delete)
 
 ### Design Phase K — Admin Halls (`app/(dashboard)/admin/halls`)
 
