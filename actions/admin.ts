@@ -137,3 +137,30 @@ export async function deleteShowtime(formData: FormData) {
   await prisma.showtime.delete({ where: { id: showtimeId } });
   revalidatePath("/admin/showtimes");
 }
+
+// --- Users ---
+
+export async function promoteToAdmin(formData: FormData) {
+  await requireAdmin();
+  const userId = formData.get("userId");
+  if (typeof userId !== "string" || !userId) return;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: "ADMIN" },
+  });
+  revalidatePath("/admin/users");
+}
+
+export async function demoteToUser(formData: FormData) {
+  const session = await requireAdmin();
+  const userId = formData.get("userId");
+  if (typeof userId !== "string" || !userId) return;
+  if (userId === session.user.id) return; // can't revoke your own admin access
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: "USER" },
+  });
+  revalidatePath("/admin/users");
+}

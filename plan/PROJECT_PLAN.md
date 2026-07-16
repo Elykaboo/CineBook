@@ -40,7 +40,8 @@ Cinema Ticket Reservation System. Next.js 15 (App Router), TypeScript, PostgreSQ
 - [x] Movie detail page (`/movies/[id]`) — description, duration, rating, showtimes
 - [x] Showtime list on detail page grouped by date
 - [x] Empty/loading states for movie fetches (empty-category message; 404 via `notFound()` for bad IDs)
-- [ ] Basic search or genre filter (stretch)
+- [x] Search by title + genre filter + sort (Title A–Z / Shortest / Longest), all as URL query params so filters survive the Now Showing/Coming Soon tab switch — verified live: `q=iron` → "Iron Tide" only, `genre=Sci-Fi&status=COMING_SOON` → "Echoes of Tomorrow" only, `sort=duration-asc` → correct ascending order (96→134 min)
+- [x] Search/genre/sort update live via `MovieFilters` client component (`app/(public)/movies/movie-filters.tsx`) using `router.replace()` — search is debounced 300ms so it doesn't fire per keystroke, genre/sort update immediately on change, no page reload
 
 ---
 

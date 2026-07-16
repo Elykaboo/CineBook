@@ -10,6 +10,7 @@ const tabs = [
   { href: "/admin/halls", label: "Halls" },
   { href: "/admin/showtimes", label: "Showtimes" },
   { href: "/admin/bookings", label: "Bookings" },
+  { href: "/admin/users", label: "Users" },
 ];
 
 export function AdminSubnav() {
