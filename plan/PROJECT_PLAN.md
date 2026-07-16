@@ -199,14 +199,16 @@ foundation must go first, everything else can happen in any order after that.
 
 ### Design Phase K — Admin Halls (`app/(dashboard)/admin/halls`) — ✅ Complete
 
-- [x] Real `<table>` (Hall | Rows×Cols | Seats | Showtimes | delete) in a two-column layout with the create form on the right, matching Admin Movies' pattern + create form with the teal "auto-generated seat grid" info note (`info` icon)
+- [x] Real `<table>` (Hall | Rows×Cols | Seats | Showtimes | edit | delete) in a two-column layout with the create form on the right, matching Admin Movies' pattern + create form with the teal "auto-generated seat grid" info note (`info` icon)
 - [x] Verified live: table renders correct real data (Hall 1: 8×10 = 80 seats, 9 showtimes), and directly re-verified the create/delete-hall transaction logic (auto-generated seat count correct) still works after restyling
+- [x] **Update added** (`/admin/halls/[id]/edit`): name always editable; changing rows/columns regenerates the seat grid in a transaction, but is blocked with a friendly error if any seat in that hall is already tied to a booking (any status) — verified live: safe rename+resize round-tripped correctly (12→30 seats), resize attempt on a hall with a booked seat correctly rejected
 
 ### Design Phase L — Admin Showtimes (`app/(dashboard)/admin/showtimes`) — ✅ Complete
 
-- [x] Real `<table>` (Movie | Hall | Date/time | Price | delete) + create form, same two-column pattern as Movies/Halls
+- [x] Real `<table>` (Movie | Hall | Date/time | Price | edit | delete) + create form, same two-column pattern as Movies/Halls
 - [x] Restructured to match: removed `/admin/showtimes/new`, form now inline on the list page (consistent with the Phase J/K decision)
 - [x] Verified live: table and form render correctly, old `/new` route 404s, create/delete showtime logic re-verified directly against the database after restyling
+- [x] **Update added** (`/admin/showtimes/[id]/edit`): movie/time/price always editable; changing the hall is blocked with a friendly error if the showtime has active (non-cancelled) bookings, since those bookings' seats belong to the old hall — verified live against real data: same-hall price update succeeds, hall-change with an active booking correctly rejected, DB state confirmed untouched
 
 ### Design Phase M — Admin Bookings (`app/(dashboard)/admin/bookings`) — ✅ Complete
 

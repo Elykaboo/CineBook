@@ -1,6 +1,7 @@
-import { Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Pencil, Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { deleteHall } from "@/actions/admin";
+import { createHall, deleteHall } from "@/actions/admin";
 import { Card } from "@/components/ui/card";
 import { HallForm } from "./hall-form";
 
@@ -41,17 +42,26 @@ export default async function AdminHallsPage() {
                   <td className="px-4 py-3 font-mono text-fg-2">
                     {hall._count.showtimes}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <form action={deleteHall}>
-                      <input type="hidden" name="hallId" value={hall.id} />
-                      <button
-                        type="submit"
-                        className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-red-50 hover:text-red-600"
-                        aria-label={`Delete ${hall.name}`}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/admin/halls/${hall.id}/edit`}
+                        className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-surface-3 hover:text-fg-1"
+                        aria-label={`Edit ${hall.name}`}
                       >
-                        <Trash2 className="h-4 w-4" strokeWidth={1.75} />
-                      </button>
-                    </form>
+                        <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                      </Link>
+                      <form action={deleteHall}>
+                        <input type="hidden" name="hallId" value={hall.id} />
+                        <button
+                          type="submit"
+                          className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-red-50 hover:text-red-600"
+                          aria-label={`Delete ${hall.name}`}
+                        >
+                          <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -62,7 +72,7 @@ export default async function AdminHallsPage() {
 
       <Card className="h-fit w-full p-5 lg:w-96">
         <h2 className="mb-4 font-semibold text-fg-1">New hall</h2>
-        <HallForm />
+        <HallForm action={createHall} />
       </Card>
     </div>
   );

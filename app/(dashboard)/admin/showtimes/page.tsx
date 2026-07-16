@@ -1,6 +1,7 @@
-import { Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Pencil, Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { deleteShowtime } from "@/actions/admin";
+import { createShowtime, deleteShowtime } from "@/actions/admin";
 import { Card } from "@/components/ui/card";
 import { ShowtimeForm } from "./showtime-form";
 
@@ -58,21 +59,30 @@ export default async function AdminShowtimesPage() {
                   <td className="px-4 py-3 font-mono text-fg-2">
                     ₱{showtime.price.toNumber().toFixed(2)}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <form action={deleteShowtime}>
-                      <input
-                        type="hidden"
-                        name="showtimeId"
-                        value={showtime.id}
-                      />
-                      <button
-                        type="submit"
-                        className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-red-50 hover:text-red-600"
-                        aria-label={`Delete showtime for ${showtime.movie.title}`}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/admin/showtimes/${showtime.id}/edit`}
+                        className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-surface-3 hover:text-fg-1"
+                        aria-label={`Edit showtime for ${showtime.movie.title}`}
                       >
-                        <Trash2 className="h-4 w-4" strokeWidth={1.75} />
-                      </button>
-                    </form>
+                        <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                      </Link>
+                      <form action={deleteShowtime}>
+                        <input
+                          type="hidden"
+                          name="showtimeId"
+                          value={showtime.id}
+                        />
+                        <button
+                          type="submit"
+                          className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-red-50 hover:text-red-600"
+                          aria-label={`Delete showtime for ${showtime.movie.title}`}
+                        >
+                          <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -83,7 +93,7 @@ export default async function AdminShowtimesPage() {
 
       <Card className="h-fit w-full p-5 lg:w-96">
         <h2 className="mb-4 font-semibold text-fg-1">New showtime</h2>
-        <ShowtimeForm movies={movies} halls={halls} />
+        <ShowtimeForm movies={movies} halls={halls} action={createShowtime} />
       </Card>
     </div>
   );

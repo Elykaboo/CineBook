@@ -102,6 +102,63 @@ export async function createHall(
   return {};
 }
 
+export async function updateHall(
+  hallId: string,
+  _prevState: AdminFormState,
+  formData: FormData
+): Promise<AdminFormState> {
+  await requireAdmin();
+
+  const parsed = hallSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  const { name, rows, columns } = parsed.data;
+
+  const hall = await prisma.cinemaHall.findUnique({ where: { id: hallId } });
+  if (!hall) {
+    return { error: "This hall no longer exists." };
+  }
+
+  const dimensionsChanged = hall.rows !== rows || hall.columns !== columns;
+
+  if (dimensionsChanged) {
+    const bookedSeatCount = await prisma.bookingSeat.count({
+      where: { seat: { hallId } },
+    });
+    if (bookedSeatCount > 0) {
+      return {
+        error:
+          "Can't resize this hall — it already has seats attached to bookings. Rename it instead, or remove those bookings first.",
+      };
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.cinemaHall.update({ where: { id: hallId }, data: { name, rows, columns } });
+
+    if (dimensionsChanged) {
+      await tx.seat.deleteMany({ where: { hallId } });
+      const seats = [];
+      for (let row = 0; row < rows; row++) {
+        for (let column = 0; column < columns; column++) {
+          seats.push({
+            hallId,
+            row,
+            column,
+            type: row >= rows - 1 ? ("PREMIUM" as const) : ("REGULAR" as const),
+          });
+        }
+      }
+      await tx.seat.createMany({ data: seats });
+    }
+  });
+
+  revalidatePath("/admin/halls");
+  redirect("/admin/halls");
+}
+
 export async function deleteHall(formData: FormData) {
   await requireAdmin();
   const hallId = formData.get("hallId");
@@ -125,6 +182,40 @@ export async function createShowtime(
   }
 
   await prisma.showtime.create({ data: parsed.data });
+  revalidatePath("/admin/showtimes");
+  redirect("/admin/showtimes");
+}
+
+export async function updateShowtime(
+  showtimeId: string,
+  _prevState: AdminFormState,
+  formData: FormData
+): Promise<AdminFormState> {
+  await requireAdmin();
+
+  const parsed = showtimeSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  const showtime = await prisma.showtime.findUnique({ where: { id: showtimeId } });
+  if (!showtime) {
+    return { error: "This showtime no longer exists." };
+  }
+
+  if (showtime.hallId !== parsed.data.hallId) {
+    const bookingCount = await prisma.booking.count({
+      where: { showtimeId, status: { not: "CANCELLED" } },
+    });
+    if (bookingCount > 0) {
+      return {
+        error:
+          "Can't change the hall — this showtime already has active bookings tied to specific seats. Cancel those bookings first, or leave the hall as is.",
+      };
+    }
+  }
+
+  await prisma.showtime.update({ where: { id: showtimeId }, data: parsed.data });
   revalidatePath("/admin/showtimes");
   redirect("/admin/showtimes");
 }
