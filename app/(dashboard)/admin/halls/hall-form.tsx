@@ -1,8 +1,10 @@
 "use client";
 
 import { useActionState, useRef, useEffect } from "react";
+import { Info } from "lucide-react";
 import { createHall, type AdminFormState } from "@/actions/admin";
-import { FieldError } from "@/components/form-error";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const initialState: AdminFormState = {};
 
@@ -20,64 +22,45 @@ export function HallForm() {
   }, [pending, state]);
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      className="flex flex-wrap gap-3 items-end border rounded p-4"
-    >
-      <div className="flex flex-col gap-1">
-        <label htmlFor="name" className="text-sm font-medium">
-          Hall Name
-        </label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <FieldError messages={state.fieldErrors?.name} />
-      </div>
+    <form ref={formRef} action={formAction} className="flex flex-col gap-4">
+      <Input
+        label="Hall name"
+        name="name"
+        required
+        error={state.fieldErrors?.name?.[0]}
+      />
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="rows" className="text-sm font-medium">
-          Rows
-        </label>
-        <input
-          id="rows"
+      <div className="flex gap-3">
+        <Input
+          label="Rows"
           name="rows"
           type="number"
           min={1}
           max={50}
           required
-          className="border rounded px-3 py-2 w-24"
+          className="flex-1"
+          error={state.fieldErrors?.rows?.[0]}
         />
-        <FieldError messages={state.fieldErrors?.rows} />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="columns" className="text-sm font-medium">
-          Columns
-        </label>
-        <input
-          id="columns"
+        <Input
+          label="Columns"
           name="columns"
           type="number"
           min={1}
           max={26}
           required
-          className="border rounded px-3 py-2 w-24"
+          className="flex-1"
+          error={state.fieldErrors?.columns?.[0]}
         />
-        <FieldError messages={state.fieldErrors?.columns} />
       </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-black text-white rounded px-4 py-2 text-sm disabled:opacity-50"
-      >
-        {pending ? "Creating..." : "Create Hall"}
-      </button>
+      <div className="flex items-start gap-2 rounded-input bg-surface-brand-subtle p-3 text-sm text-teal-700">
+        <Info className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.75} />
+        <span>The seat grid is generated automatically from rows × columns.</span>
+      </div>
+
+      <Button type="submit" disabled={pending}>
+        {pending ? "Creating..." : "Create hall"}
+      </Button>
     </form>
   );
 }

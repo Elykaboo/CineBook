@@ -196,24 +196,30 @@ foundation must go first, everything else can happen in any order after that.
 - [x] **Restructure**: the handoff puts the create form directly on the list page (matching the pattern already used for halls), not on a separate route — removed the now-redundant `/admin/movies/new` route entirely rather than leaving two ways to create a movie. Edit stays on its own route (`/admin/movies/[id]/edit`, restyled) since the handoff doesn't specify inline editing and it isn't worth the added client-state complexity
 - [x] Verified live: list/form render correctly, old `/new` route now correctly 404s, and directly re-verified create/update/delete against the database after the restructuring (count returns to baseline after create+delete)
 
-### Design Phase K — Admin Halls (`app/(dashboard)/admin/halls`)
+### Design Phase K — Admin Halls (`app/(dashboard)/admin/halls`) — ✅ Complete
 
-- [ ] Table (Hall | Rows×Cols | Seats | Showtimes | delete) + create form with the "auto-generated seat grid" info note
+- [x] Real `<table>` (Hall | Rows×Cols | Seats | Showtimes | delete) in a two-column layout with the create form on the right, matching Admin Movies' pattern + create form with the teal "auto-generated seat grid" info note (`info` icon)
+- [x] Verified live: table renders correct real data (Hall 1: 8×10 = 80 seats, 9 showtimes), and directly re-verified the create/delete-hall transaction logic (auto-generated seat count correct) still works after restyling
 
-### Design Phase L — Admin Showtimes (`app/(dashboard)/admin/showtimes`)
+### Design Phase L — Admin Showtimes (`app/(dashboard)/admin/showtimes`) — ✅ Complete
 
-- [ ] Table (Movie | Hall | Date/time | Price | delete) + create form
+- [x] Real `<table>` (Movie | Hall | Date/time | Price | delete) + create form, same two-column pattern as Movies/Halls
+- [x] Restructured to match: removed `/admin/showtimes/new`, form now inline on the list page (consistent with the Phase J/K decision)
+- [x] Verified live: table and form render correctly, old `/new` route 404s, create/delete showtime logic re-verified directly against the database after restyling
 
-### Design Phase M — Admin Bookings (`app/(dashboard)/admin/bookings`)
+### Design Phase M — Admin Bookings (`app/(dashboard)/admin/bookings`) — ✅ Complete
 
-- [ ] Segmented status filter (All/Pending/Confirmed/Cancelled) + table (Movie/Customer/Hall-time/Seats/StatusPill/Price)
+- [x] Segmented pill status filter (All/Pending/Confirmed/Cancelled) + real `<table>` (Movie | Customer name+mono email | Hall/time | Seats via `seatLabel()` | `StatusPill` | Price)
+- [x] Verified live: table renders real seed data (correct emails, seat labels like "H5, H6, H7", all three statuses present), each status filter link returns 200 and correctly scopes results (PENDING filter returned exactly 1 row)
 
-### Design Phase N — Cross-Page QA Pass (do last)
+### Design Phase N — Cross-Page QA Pass (do last) — ✅ Complete
 
-- [ ] Consistency check across all screens (spacing, type scale, color usage matches tokens exactly)
-- [ ] Responsive pass on every screen, especially the seat map
-- [ ] Favicon/app icon (teal clapperboard mark)
-- [ ] Verify animation timing (120–150ms micro-interactions, PENDING dot 1.6s pulse, button press `scale(0.982)`) — no decorative motion anywhere
+- [x] **Found and fixed a real gap**: `app/page.tsx` (the site root, `/`) was never covered by any Design Phase A–M and was still the unmodified `create-next-app` boilerplate (Vercel/Next.js logos, zinc dark-mode colors, "Deploy Now" button) — the most-visible page in the app had zero CineBook branding. Rewrote it as a real landing page: hero (Ticket icon mark, Lora headline, "Browse movies" / "Create an account" CTAs using existing `buttonVariants`) + a live "Now showing" preview strip (`PosterTile`, real `prisma.movie.findMany` data, empty state matches `/movies`). Verified live: 200 status, real seed movie titles rendering.
+- [x] Consistency check across all screens — token usage (`bg-surface-*`, `text-fg-*`, `rounded-*`) confirmed consistent; only remaining raw Tailwind color usage (`bg-black/20` in `poster-tile.tsx`) is an intentional scrim overlay on a colored poster background, not a token gap
+- [x] Responsive pass — seat map uses `overflow-x-auto` with `w-max` inner grid so wide halls scroll horizontally instead of squeezing; sticky booking bar (`fixed inset-x-0 bottom-0`) pairs with `pb-32` on the page container so content is never hidden behind it; grids use `repeat(auto-fill,minmax(...))` / responsive column counts across movies, admin overview, and the new landing page
+- [x] Favicon/app icon — added `app/icon.svg`: teal-500 (`#1D9E75`) rounded-square mark with the same white clapperboard glyph used in the navbar logo (Next.js App Router auto-serves `app/icon.svg` as the site icon, confirmed 200 in the build's static route list)
+- [x] Animation timing — confirmed in `app/globals.css` / `components/ui/button.tsx`: button transitions are `duration-150` (within the 120–150ms spec) with `active:scale-[0.982]`, PENDING status dot pulses via `@keyframes status-dot-pulse` at exactly `1.6s`; no decorative/gratuitous motion found anywhere else in the codebase
+- [x] Final verification: `tsc --noEmit` clean, `eslint .` clean, `npm run build` succeeds with all expected routes present (including new `/icon.svg`)
 
 ---
 

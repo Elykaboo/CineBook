@@ -1,54 +1,90 @@
-import Link from "next/link";
+import { Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { deleteShowtime } from "@/actions/admin";
+import { Card } from "@/components/ui/card";
+import { ShowtimeForm } from "./showtime-form";
 
 export default async function AdminShowtimesPage() {
-  const showtimes = await prisma.showtime.findMany({
-    orderBy: { startTime: "asc" },
-    include: { movie: true, hall: true },
-  });
+  const [showtimes, movies, halls] = await Promise.all([
+    prisma.showtime.findMany({
+      orderBy: { startTime: "asc" },
+      include: { movie: true, hall: true },
+    }),
+    prisma.movie.findMany({
+      orderBy: { title: "asc" },
+      select: { id: true, title: true },
+    }),
+    prisma.cinemaHall.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Showtimes</h1>
-        <Link
-          href="/admin/showtimes/new"
-          className="bg-black text-white rounded px-4 py-2 text-sm"
-        >
-          New Showtime
-        </Link>
+    <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="flex flex-1 flex-col gap-3">
+        <h1 className="font-serif text-2xl text-fg-1">Showtimes</h1>
+
+        <Card className="overflow-hidden p-0">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border-1 text-left text-xs text-fg-3">
+                <th className="px-4 py-3 font-medium">Movie</th>
+                <th className="px-4 py-3 font-medium">Hall</th>
+                <th className="px-4 py-3 font-medium">Date/time</th>
+                <th className="px-4 py-3 font-medium">Price</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {showtimes.map((showtime) => (
+                <tr
+                  key={showtime.id}
+                  className="border-b border-border-1 last:border-0"
+                >
+                  <td className="px-4 py-3 font-semibold text-fg-1">
+                    {showtime.movie.title}
+                  </td>
+                  <td className="px-4 py-3 text-fg-2">{showtime.hall.name}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-fg-2">
+                    {showtime.startTime.toLocaleString(undefined, {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-fg-2">
+                    ₱{showtime.price.toNumber().toFixed(2)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <form action={deleteShowtime}>
+                      <input
+                        type="hidden"
+                        name="showtimeId"
+                        value={showtime.id}
+                      />
+                      <button
+                        type="submit"
+                        className="flex h-8 w-8 items-center justify-center rounded-chip text-fg-2 hover:bg-red-50 hover:text-red-600"
+                        aria-label={`Delete showtime for ${showtime.movie.title}`}
+                      >
+                        <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {showtimes.map((showtime) => (
-          <div
-            key={showtime.id}
-            className="border rounded p-3 flex justify-between items-center"
-          >
-            <div>
-              <p className="font-medium">{showtime.movie.title}</p>
-              <p className="text-sm text-gray-500">
-                {showtime.hall.name} ·{" "}
-                {showtime.startTime.toLocaleString(undefined, {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}{" "}
-                · ₱{showtime.price.toNumber().toFixed(2)}
-              </p>
-            </div>
-            <form action={deleteShowtime}>
-              <input type="hidden" name="showtimeId" value={showtime.id} />
-              <button type="submit" className="text-red-600 underline text-sm">
-                Delete
-              </button>
-            </form>
-          </div>
-        ))}
-      </div>
+      <Card className="h-fit w-full p-5 lg:w-96">
+        <h2 className="mb-4 font-semibold text-fg-1">New showtime</h2>
+        <ShowtimeForm movies={movies} halls={halls} />
+      </Card>
     </div>
   );
 }
